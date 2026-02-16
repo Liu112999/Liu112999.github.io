@@ -1,0 +1,902 @@
+<!DOCTYPE html><html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题型频率引擎 | Question Type Frequency Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }/* –– Header –– */
+.header {
+background: white; border-bottom: 1px solid #e2e8f0;
+padding: 16px 24px; position: sticky; top: 0; z-index: 100;
+}
+.header-inner {
+max-width: 960px; margin: 0 auto;
+display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+width: 36px; height: 36px; border-radius: 10px;
+background: linear-gradient(135deg, #2563eb, #7c3aed);
+display: flex; align-items: center; justify-content: center;
+font-size: 18px; color: white; font-weight: 800;
+}
+.logo-title { font-size: 16px; font-weight: 800; color: #1e293b; letter-spacing: -0.02em; }
+.logo-sub { font-size: 11px; color: #94a3b8; letter-spacing: 0.05em; }
+.tabs { display: flex; gap: 4px; background: #f8fafc; border-radius: 10px; padding: 3px; }
+.tab-btn {
+padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+font-size: 13px; font-weight: 600; transition: all 0.2s ease;
+background: transparent; color: #64748b;
+}
+.tab-btn.active { background: #1e293b; color: white; }
+/* –– Content –– */
+.content { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+/* –– Stats –– */
+.stats-grid {
+display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+border-radius: 14px; padding: 20px 18px;
+box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.stat-card.total {
+background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white;
+}
+.stat-card.cat { background: white; }
+.stat-label { font-size: 13px; opacity: 0.7; margin-bottom: 4px; }
+.stat-number { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+.stat-sub { font-size: 12px; opacity: 0.5; margin-top: 4px; }
+/* –– Panel –– */
+.panel {
+background: white; border-radius: 14px; padding: 20px;
+box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;
+}
+/* –– Category Row (Level 1) –– */
+.cat-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 20px; border-radius: 12px; cursor: pointer;
+transition: all 0.3s ease; border: 1px solid #f1f5f9;
+margin-bottom: 8px; background: white;
+}
+.cat-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.cat-row.expanded { border: none; color: white; }
+.cat-left { display: flex; align-items: center; gap: 12px; }
+.cat-icon {
+font-size: 20px; width: 40px; height: 40px;
+display: flex; align-items: center; justify-content: center;
+border-radius: 10px;
+}
+.cat-name { font-size: 16px; font-weight: 700; }
+.cat-meta { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.cat-right { display: flex; align-items: center; gap: 12px; }
+.cat-count { font-size: 22px; font-weight: 800; }
+.arrow {
+font-size: 18px; transition: transform 0.3s ease; display: inline-block;
+}
+.arrow.open { transform: rotate(90deg); }
+/* –– Sub Row (Level 2) –– */
+.sub-container { padding-left: 20px; margin-top: 4px; }
+.sub-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 12px 16px; border-radius: 10px; cursor: pointer;
+border: 1px solid #f1f5f9; transition: all 0.2s ease;
+margin-top: 4px; background: white;
+}
+.sub-row.expanded { background: #f8fafc; }
+.sub-left { display: flex; align-items: center; gap: 10px; }
+.sub-dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.6; flex-shrink: 0; }
+.sub-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+.sub-meta { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+.sub-right { display: flex; align-items: center; gap: 10px; }
+/* –– Topic Row (Level 3) –– */
+.topic-container { padding-left: 18px; margin-top: 2px; }
+.topic-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 10px 14px; border-radius: 8px; cursor: pointer;
+transition: all 0.2s ease; margin-top: 2px;
+}
+.topic-row:hover { background: rgba(0,0,0,0.02); }
+.topic-left { display: flex; align-items: center; gap: 8px; }
+.topic-diamond { font-size: 12px; opacity: 0.5; }
+.topic-name { font-size: 13px; font-weight: 500; color: #334155; }
+.topic-right { display: flex; align-items: center; gap: 8px; }
+/* –– Method area (Level 4) –– */
+.method-container { padding-left: 20px; padding-bottom: 8px; margin-top: 4px; }
+.method-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+.method-tag {
+display: inline-flex; align-items: center; gap: 6px;
+padding: 5px 12px; border-radius: 20px; cursor: pointer;
+font-size: 12px; font-weight: 500; transition: all 0.2s ease;
+margin: 2px 4px 2px 0; border-width: 1px; border-style: solid;
+}
+.method-tag .badge {
+padding: 0 5px; border-radius: 8px; font-size: 10px;
+}
+.method-wrapper { width: 100%; margin-bottom: 4px; }
+/* –– Question card –– */
+.q-card {
+background: #fafbfc; border-radius: 10px; padding: 14px 16px;
+margin-top: 8px; border-left-width: 3px; border-left-style: solid;
+}
+.q-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.q-id { font-size: 11px; color: #94a3b8; margin-bottom: 4px; font-family: monospace; }
+.q-text { font-size: 14px; color: #1e293b; line-height: 1.6; }
+.q-diff {
+font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; flex-shrink: 0;
+}
+.q-diff.easy { background: #dcfce7; color: #166534; }
+.q-diff.medium { background: #fef9c3; color: #854d0e; }
+.q-diff.hard { background: #fecaca; color: #991b1b; }
+.q-bottom { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+.q-source { font-size: 11px; color: #94a3b8; }
+.q-method-tag {
+display: inline-block; padding: 3px 10px; border-radius: 20px;
+font-size: 12px; font-weight: 500; margin: 2px 4px 2px 0;
+border-width: 1px; border-style: solid;
+}
+.empty-placeholder {
+font-size: 13px; color: #cbd5e1; text-align: center;
+padding: 16px; background: #f8fafc; border-radius: 8px;
+border: 1px dashed #e2e8f0;
+}
+/* –– Frequency bar –– */
+.freq-bar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.freq-track { width: 80px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+.freq-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.freq-num { font-size: 13px; font-weight: 700; min-width: 30px; }
+/* –– Upload zone –– */
+.upload-zone {
+border: 2px dashed #d1d5db; border-radius: 16px;
+padding: 40px 24px; text-align: center; background: #fafbfc;
+transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden;
+}
+.upload-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+.upload-zone.uploading { cursor: default; }
+.upload-icon { font-size: 48px; margin-bottom: 12px; }
+.upload-title { font-size: 17px; font-weight: 600; color: #1e293b; margin-bottom: 6px; }
+.upload-hint { font-size: 13px; color: #94a3b8; }
+.upload-stage { font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+.progress-track {
+width: 100%; max-width: 400px; height: 8px; background: #e2e8f0;
+border-radius: 4px; margin: 0 auto; overflow: hidden;
+}
+.progress-fill {
+height: 100%; background: linear-gradient(90deg, #2563eb, #7c3aed);
+border-radius: 4px; transition: width 0.5s ease;
+}
+.progress-pct { font-size: 13px; color: #94a3b8; margin-top: 8px; }
+/* –– AI flow –– */
+.ai-flow-grid {
+display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
+}
+.ai-step {
+padding: 14px; border-radius: 10px; background: #f8fafc;
+border: 1px solid #f1f5f9;
+}
+.ai-step-icon { font-size: 24px; margin-bottom: 6px; }
+.ai-step-title { font-size: 13px; font-weight: 700; color: #1e293b; }
+.ai-step-desc { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+/* –– Ranking –– */
+.rank-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+.rank-row {
+display: flex; align-items: center; gap: 12px; padding: 8px 0;
+}
+.rank-row + .rank-row { border-top: 1px solid #f8fafc; }
+.rank-badge {
+width: 24px; height: 24px; border-radius: 6px;
+display: flex; align-items: center; justify-content: center;
+font-size: 12px; font-weight: 800; flex-shrink: 0;
+}
+.rank-info { flex: 1; min-width: 0; }
+.rank-name {
+font-size: 13px; font-weight: 600; color: #1e293b;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rank-path { font-size: 11px; color: #94a3b8; }
+.rank-bar-area { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.rank-track { width: 60px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+.rank-fill { height: 100%; border-radius: 3px; }
+.rank-count { font-size: 13px; font-weight: 700; min-width: 28px; text-align: right; }
+/* –– Toast –– */
+.toast {
+position: fixed; top: 20px; right: 20px; z-index: 1000;
+background: white; border-radius: 14px; padding: 16px 20px;
+box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
+max-width: 320px; animation: slideIn 0.3s ease;
+}
+.toast-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.toast-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.toast-body { font-size: 12px; color: #64748b; line-height: 1.5; }
+.toast-close { cursor: pointer; font-size: 18px; color: #94a3b8; line-height: 1; background: none; border: none; }
+.browse-hint { font-size: 13px; color: #94a3b8; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+@keyframes slideIn {
+from { transform: translateX(100%); opacity: 0; }
+to { transform: translateX(0); opacity: 1; }
+}
+/* Responsive */
+@media (max-width: 600px) {
+.header-inner { flex-direction: column; align-items: flex-start; }
+.tabs { width: 100%; overflow-x: auto; }
+.stat-number { font-size: 24px; }
+.cat-row { padding: 12px 14px; }
+.freq-track { width: 50px; }
+}
+</style>
+</head>
+<body><div id="app"></div><script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script><script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// =============================================
+// Question Database
+// =============================================
+const QUESTION_DATABASE = {
+  "几何 Geometry": {
+    icon: "△",
+    color: "#2563eb",
+    subcategories: {
+      "圆 Circle": {
+        topics: {
+          "圆的基本性质 Basic Properties": {
+            methods: ["圆心角与弧的关系", "弦与弧的关系", "切线性质应用"],
+            count: 47,
+            questions: [
+              { id: "G-C-001", text: "已知⊙O的半径为5，弦AB的长为8，求圆心到弦AB的距离。", difficulty: "基础", source: "2024中考真题", method: "圆心角与弧的关系" },
+              { id: "G-C-002", text: "如图，AB是⊙O的直径，CD是⊙O的弦，∠ABD=55°，求∠ACD的度数。", difficulty: "中等", source: "模拟试卷", method: "弦与弧的关系" },
+            ]
+          },
+          "切线问题 Tangent Line": {
+            methods: ["切线长定理", "构造辅助线（连接圆心与切点）", "切线与弦的夹角"],
+            count: 38,
+            questions: [
+              { id: "G-C-003", text: "从⊙O外一点P引两条切线PA和PB，若∠APB=60°，PA=4，求⊙O的半径。", difficulty: "中等", source: "2024中考真题", method: "切线长定理" },
+            ]
+          },
+          "圆与三角形 Circle & Triangle": {
+            methods: ["内切圆", "外接圆", "圆幂定理"],
+            count: 29,
+            questions: [
+              { id: "G-C-004", text: "三角形ABC内接于⊙O，若AB=AC=5，BC=6，求⊙O的半径。", difficulty: "较难", source: "竞赛试卷", method: "外接圆" },
+            ]
+          }
+        }
+      },
+      "三角形 Triangle": {
+        topics: {
+          "相似三角形 Similar Triangles": {
+            methods: ["AA相似判定", "SAS相似判定", "比例线段"],
+            count: 56,
+            questions: [
+              { id: "G-T-001", text: "如图，DE∥BC，AD:DB=2:3，DE=4，求BC的长。", difficulty: "基础", source: "课堂练习", method: "AA相似判定" },
+            ]
+          },
+          "全等三角形 Congruent Triangles": {
+            methods: ["SSS", "SAS", "ASA", "AAS", "HL"],
+            count: 62,
+            questions: [
+              { id: "G-T-002", text: "已知△ABC≅△DEF，∠A=50°，∠B=60°，求∠F的度数。", difficulty: "基础", source: "2023中考真题", method: "ASA" },
+            ]
+          },
+          "直角三角形 Right Triangle": {
+            methods: ["勾股定理", "三角函数", "特殊角"],
+            count: 45,
+            questions: [
+              { id: "G-T-003", text: "在Rt△ABC中，∠C=90°，AC=3，BC=4，求sinA的值。", difficulty: "基础", source: "课堂练习", method: "三角函数" },
+            ]
+          }
+        }
+      },
+      "四边形 Quadrilateral": {
+        topics: {
+          "平行四边形 Parallelogram": {
+            methods: ["对角线互相平分", "对边平行且相等", "面积计算"],
+            count: 33,
+            questions: []
+          },
+          "梯形 Trapezoid": {
+            methods: ["中位线定理", "等腰梯形性质", "辅助线法"],
+            count: 21,
+            questions: []
+          }
+        }
+      },
+      "坐标几何 Coordinate Geometry": {
+        topics: {
+          "直线方程 Linear Equation": {
+            methods: ["两点式", "点斜式", "平行与垂直"],
+            count: 28,
+            questions: []
+          },
+          "圆的方程 Circle Equation": {
+            methods: ["标准方程", "一般方程", "直线与圆位置关系"],
+            count: 19,
+            questions: []
+          }
+        }
+      }
+    }
+  },
+  "代数 Algebra": {
+    icon: "χ",
+    color: "#7c3aed",
+    subcategories: {
+      "方程 Equations": {
+        topics: {
+          "一元二次方程 Quadratic": {
+            methods: ["公式法", "因式分解", "配方法", "韦达定理"],
+            count: 71,
+            questions: [
+              { id: "A-E-001", text: "解方程：x² - 5x + 6 = 0", difficulty: "基础", source: "课堂练习", method: "因式分解" },
+              { id: "A-E-002", text: "已知方程x² + px + q = 0的两根之和为3，两根之积为-4，求p和q。", difficulty: "中等", source: "2024模拟", method: "韦达定理" },
+            ]
+          },
+          "分式方程 Fractional Equation": {
+            methods: ["去分母", "换元法", "增根检验"],
+            count: 34,
+            questions: []
+          },
+          "方程组 System of Equations": {
+            methods: ["代入消元", "加减消元", "图形法"],
+            count: 42,
+            questions: []
+          }
+        }
+      },
+      "不等式 Inequalities": {
+        topics: {
+          "一元一次不等式 Linear Inequality": {
+            methods: ["解集求法", "数轴表示", "实际应用"],
+            count: 25,
+            questions: []
+          },
+          "一元二次不等式 Quadratic Inequality": {
+            methods: ["图像法", "解集分析", "含参讨论"],
+            count: 31,
+            questions: []
+          }
+        }
+      },
+      "函数 Functions": {
+        topics: {
+          "二次函数 Quadratic Function": {
+            methods: ["顶点式", "图像平移", "最值问题", "与方程联立"],
+            count: 88,
+            questions: [
+              { id: "A-F-001", text: "已知二次函数y=ax²+bx+c过点(1,0)和(-3,0)，且顶点纵坐标为4，求解析式。", difficulty: "中等", source: "2024中考真题", method: "顶点式" },
+            ]
+          },
+          "反比例函数 Inverse Proportion": {
+            methods: ["k值确定", "图像性质", "面积问题"],
+            count: 36,
+            questions: []
+          },
+          "一次函数 Linear Function": {
+            methods: ["斜率与截距", "平行与相交", "实际建模"],
+            count: 41,
+            questions: []
+          }
+        }
+      }
+    }
+  },
+  "概率与统计 Probability & Statistics": {
+    icon: "📊",
+    color: "#059669",
+    subcategories: {
+      "概率 Probability": {
+        topics: {
+          "古典概型 Classical Probability": {
+            methods: ["列举法", "树形图", "列表法"],
+            count: 44,
+            questions: [
+              { id: "P-P-001", text: "同时掷两个骰子，求点数之和为7的概率。", difficulty: "基础", source: "课堂练习", method: "列表法" },
+            ]
+          },
+          "频率与概率 Frequency & Probability": {
+            methods: ["大数定律", "频率估计概率", "模拟实验"],
+            count: 18,
+            questions: []
+          }
+        }
+      },
+      "统计 Statistics": {
+        topics: {
+          "数据集中趋势 Central Tendency": {
+            methods: ["平均数", "中位数", "众数"],
+            count: 32,
+            questions: []
+          },
+          "数据离散程度 Dispersion": {
+            methods: ["方差", "标准差", "极差"],
+            count: 22,
+            questions: []
+          },
+          "统计图表 Statistical Charts": {
+            methods: ["频率分布直方图", "扇形图分析", "折线图趋势"],
+            count: 27,
+            questions: []
+          }
+        }
+      }
+    }
+  },
+  "数论与组合 Number Theory & Combinatorics": {
+    icon: "∑",
+    color: "#dc2626",
+    subcategories: {
+      "整数性质 Integer Properties": {
+        topics: {
+          "整除与余数 Divisibility": {
+            methods: ["整除判定", "同余定理", "辗转相除"],
+            count: 15,
+            questions: []
+          },
+          "质数与合数 Primes": {
+            methods: ["质因数分解", "筛法", "最大公因数与最小公倍数"],
+            count: 12,
+            questions: []
+          }
+        }
+      },
+      "排列组合 Permutation & Combination": {
+        topics: {
+          "排列 Permutation": {
+            methods: ["乘法原理", "有限制排列", "全排列"],
+            count: 20,
+            questions: []
+          },
+          "组合 Combination": {
+            methods: ["组合数公式", "分组问题", "二项式定理"],
+            count: 23,
+            questions: []
+          }
+        }
+      }
+    }
+  }
+};
+
+// =============================================
+// Helpers
+// =============================================
+function computeTotals(data) {
+  let total = 0;
+  const categoryTotals = {};
+  for (const [cat, catData] of Object.entries(data)) {
+    let catTotal = 0;
+    for (const subData of Object.values(catData.subcategories)) {
+      for (const topicData of Object.values(subData.topics)) {
+        catTotal += topicData.count;
+      }
+    }
+    categoryTotals[cat] = catTotal;
+    total += catTotal;
+  }
+  return { total, categoryTotals };
+}
+
+function getMaxTopicCount(data) {
+  let max = 0;
+  for (const catData of Object.values(data)) {
+    for (const subData of Object.values(catData.subcategories)) {
+      for (const topicData of Object.values(subData.topics)) {
+        if (topicData.count > max) max = topicData.count;
+      }
+    }
+  }
+  return max;
+}
+
+// =============================================
+// Components
+// =============================================
+
+function FreqBar({ count, maxCount, color }) {
+  const pct = Math.round((count / maxCount) * 100);
+  return (
+    <div className="freq-bar">
+      <div className="freq-track">
+        <div className="freq-fill" style={{ width: pct + '%', background: color }} />
+      </div>
+      <span className="freq-num" style={{ color }}>{count}</span>
+    </div>
+  );
+}
+
+function QuestionCard({ q, color }) {
+  const diffClass = q.difficulty === '基础' ? 'easy' : q.difficulty === '中等' ? 'medium' : 'hard';
+  return (
+    <div className="q-card" style={{ borderLeftColor: color + '80' }}>
+      <div className="q-top">
+        <div style={{ flex: 1 }}>
+          <div className="q-id">{q.id}</div>
+          <div className="q-text">{q.text}</div>
+        </div>
+        <span className={`q-diff ${diffClass}`}>{q.difficulty}</span>
+      </div>
+      <div className="q-bottom">
+        <span className="q-method-tag" style={{
+          background: color + '15', color: color, borderColor: color + '30'
+        }}>{q.method}</span>
+        <span className="q-source">{q.source}</span>
+      </div>
+    </div>
+  );
+}
+
+function StatsBar({ data }) {
+  const { total, categoryTotals } = computeTotals(data);
+  const sorted = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+  return (
+    <div className="stats-grid">
+      <div className="stat-card total">
+        <div className="stat-label">题目总数</div>
+        <div className="stat-number">{total}</div>
+        <div className="stat-sub">{Object.keys(data).length} 大类</div>
+      </div>
+      {sorted.map(([name, count]) => {
+        const cat = data[name];
+        return (
+          <div key={name} className="stat-card cat" style={{ borderLeft: `4px solid ${cat.color}` }}>
+            <div className="stat-label" style={{ color: '#64748b' }}>{cat.icon} {name.split(' ')[0]}</div>
+            <div className="stat-number" style={{ color: cat.color }}>{count}</div>
+            <div className="stat-sub" style={{ color: '#94a3b8', opacity: 1 }}>{Math.round(count / total * 100)}% 占比</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TreeBrowser({ data }) {
+  const [expCats, setExpCats] = useState({});
+  const [expSubs, setExpSubs] = useState({});
+  const [expTopics, setExpTopics] = useState({});
+  const [expMethods, setExpMethods] = useState({});
+  const { total } = computeTotals(data);
+  const maxCount = getMaxTopicCount(data);
+
+  const toggle = (setter, key) => setter(p => ({ ...p, [key]: !p[key] }));
+
+  return (
+    <div>
+      <div className="browse-hint"><span>📂</span><span>题型分类浏览 — 点击展开各层级</span></div>
+
+      {Object.entries(data).map(([catName, catData]) => {
+        const isExp = expCats[catName];
+        let catCount = 0;
+        for (const sub of Object.values(catData.subcategories))
+          for (const t of Object.values(sub.topics)) catCount += t.count;
+        const subCount = Object.keys(catData.subcategories).length;
+
+        return (
+          <div key={catName}>
+            {/* Level 1 */}
+            <div className={`cat-row ${isExp ? 'expanded' : ''}`}
+              style={isExp ? { background: catData.color, boxShadow: `0 4px 20px ${catData.color}40` } : {}}
+              onClick={() => toggle(setExpCats, catName)}>
+              <div className="cat-left">
+                <span className="cat-icon" style={{
+                  background: isExp ? 'rgba(255,255,255,0.2)' : catData.color + '15'
+                }}>{catData.icon}</span>
+                <div>
+                  <div className="cat-name">{catName}</div>
+                  <div className="cat-meta">{subCount} 个子分类 · {catCount} 题 · 占比 {Math.round(catCount / total * 100)}%</div>
+                </div>
+              </div>
+              <div className="cat-right">
+                <span className="cat-count" style={{ opacity: isExp ? 1 : 0.6 }}>{catCount}</span>
+                <span className={`arrow ${isExp ? 'open' : ''}`}>›</span>
+              </div>
+            </div>
+
+            {/* Level 2 */}
+            {isExp && (
+              <div className="sub-container">
+                {Object.entries(catData.subcategories).map(([subName, subData]) => {
+                  const subKey = catName + '>' + subName;
+                  const subExp = expSubs[subKey];
+                  let subTotal = 0;
+                  for (const t of Object.values(subData.topics)) subTotal += t.count;
+
+                  return (
+                    <div key={subKey}>
+                      <div className={`sub-row ${subExp ? 'expanded' : ''}`}
+                        style={subExp ? { borderColor: catData.color + '30' } : {}}
+                        onClick={() => toggle(setExpSubs, subKey)}>
+                        <div className="sub-left">
+                          <span className="sub-dot" style={{ background: catData.color }} />
+                          <div>
+                            <div className="sub-name">{subName}</div>
+                            <div className="sub-meta">{Object.keys(subData.topics).length} 个知识点</div>
+                          </div>
+                        </div>
+                        <div className="sub-right">
+                          <FreqBar count={subTotal} maxCount={maxCount * 2} color={catData.color} />
+                          <span className={`arrow ${subExp ? 'open' : ''}`} style={{ color: '#94a3b8', fontSize: 16 }}>›</span>
+                        </div>
+                      </div>
+
+                      {/* Level 3 */}
+                      {subExp && (
+                        <div className="topic-container">
+                          {Object.entries(subData.topics).map(([topicName, topicData]) => {
+                            const topicKey = subKey + '>' + topicName;
+                            const topicExp = expTopics[topicKey];
+                            return (
+                              <div key={topicKey}>
+                                <div className={`topic-row`}
+                                  style={topicExp ? { background: catData.color + '08' } : {}}
+                                  onClick={() => toggle(setExpTopics, topicKey)}>
+                                  <div className="topic-left">
+                                    <span className="topic-diamond" style={{ color: catData.color }}>◆</span>
+                                    <span className="topic-name">{topicName}</span>
+                                  </div>
+                                  <div className="topic-right">
+                                    <FreqBar count={topicData.count} maxCount={maxCount} color={catData.color} />
+                                    <span className={`arrow ${topicExp ? 'open' : ''}`} style={{ color: '#cbd5e1', fontSize: 14 }}>›</span>
+                                  </div>
+                                </div>
+
+                                {/* Level 4: Methods + Questions */}
+                                {topicExp && (
+                                  <div className="method-container">
+                                    <div className="method-label">解题方法：</div>
+                                    {topicData.methods.map(m => {
+                                      const mKey = topicKey + '>' + m;
+                                      const mExp = expMethods[mKey];
+                                      const mQuestions = topicData.questions.filter(q => q.method === m);
+                                      return (
+                                        <div key={m} className="method-wrapper">
+                                          <span className="method-tag"
+                                            style={{
+                                              background: mExp ? catData.color : catData.color + '12',
+                                              color: mExp ? 'white' : catData.color,
+                                              borderColor: catData.color + '25',
+                                            }}
+                                            onClick={(e) => { e.stopPropagation(); toggle(setExpMethods, mKey); }}>
+                                            <span>{m}</span>
+                                            {mQuestions.length > 0 && (
+                                              <span className="badge" style={{
+                                                background: mExp ? 'rgba(255,255,255,0.3)' : catData.color + '20'
+                                              }}>{mQuestions.length}</span>
+                                            )}
+                                          </span>
+                                          {mExp && mQuestions.length > 0 && (
+                                            <div style={{ marginTop: 4, marginBottom: 8 }}>
+                                              {mQuestions.map(q => <QuestionCard key={q.id} q={q} color={catData.color} />)}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+
+                                    {topicData.questions.length > 0 && (
+                                      <div style={{ marginTop: 8 }}>
+                                        <div className="method-label">📝 题目示例 ({topicData.questions.length} / {topicData.count})：</div>
+                                        {topicData.questions.map(q => <QuestionCard key={q.id} q={q} color={catData.color} />)}
+                                      </div>
+                                    )}
+
+                                    {topicData.questions.length === 0 && (
+                                      <div className="empty-placeholder">暂无题目示例 — 上传试卷后自动填充</div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FrequencyRanking({ data }) {
+  const allTopics = [];
+  for (const [catName, catData] of Object.entries(data)) {
+    for (const [subName, subData] of Object.entries(catData.subcategories)) {
+      for (const [topicName, topicData] of Object.entries(subData.topics)) {
+        allTopics.push({
+          name: topicName, sub: subName.split(' ')[0], cat: catName.split(' ')[0],
+          count: topicData.count, color: catData.color, icon: catData.icon,
+        });
+      }
+    }
+  }
+  allTopics.sort((a, b) => b.count - a.count);
+  const top10 = allTopics.slice(0, 10);
+  const maxC = top10[0]?.count || 1;
+
+  return (
+    <div className="panel">
+      <div className="rank-title">🔥 高频题型 TOP 10</div>
+      {top10.map((t, i) => (
+        <div key={i} className="rank-row">
+          <span className="rank-badge" style={{
+            background: i < 3 ? t.color : '#f1f5f9',
+            color: i < 3 ? 'white' : '#94a3b8',
+          }}>{i + 1}</span>
+          <div className="rank-info">
+            <div className="rank-name">{t.name}</div>
+            <div className="rank-path">{t.cat} › {t.sub}</div>
+          </div>
+          <div className="rank-bar-area">
+            <div className="rank-track">
+              <div className="rank-fill" style={{ width: `${(t.count / maxC) * 100}%`, background: t.color }} />
+            </div>
+            <span className="rank-count" style={{ color: t.color }}>{t.count}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UploadZone({ onUploadComplete }) {
+  const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [stage, setStage] = useState("");
+  const fileInputRef = useRef(null);
+
+  const simulateProcessing = useCallback(() => {
+    setUploading(true); setProgress(0);
+    const stages = [
+      { p: 15, text: "📸 正在读取图片..." },
+      { p: 35, text: "🔍 OCR 文字识别中..." },
+      { p: 55, text: "✂️ 正在拆分题目..." },
+      { p: 75, text: "🧠 AI 题型分类中..." },
+      { p: 90, text: "📊 更新统计数据..." },
+      { p: 100, text: "✅ 处理完成！" },
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < stages.length) {
+        setProgress(stages[i].p); setStage(stages[i].text); i++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          setUploading(false); setProgress(0); setStage("");
+          onUploadComplete({ filename: "2024_数学中考真题.jpg", questionsFound: 8, newTypes: 2, updatedTypes: 6 });
+        }, 800);
+      }
+    }, 700);
+  }, [onUploadComplete]);
+
+  return (
+    <div className={`upload-zone ${dragOver ? 'dragover' : ''} ${uploading ? 'uploading' : ''}`}
+      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={e => { e.preventDefault(); setDragOver(false); simulateProcessing(); }}
+      onClick={() => !uploading && fileInputRef.current?.click()}>
+      <input ref={fileInputRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+        onChange={() => simulateProcessing()} />
+      {uploading ? (
+        <div>
+          <div className="upload-stage">{stage}</div>
+          <div className="progress-track">
+            <div className="progress-fill" style={{ width: progress + '%' }} />
+          </div>
+          <div className="progress-pct">{progress}%</div>
+        </div>
+      ) : (
+        <div>
+          <div className="upload-icon">📄</div>
+          <div className="upload-title">拖拽试卷到这里，或点击上传</div>
+          <div className="upload-hint">支持 JPG / PNG / PDF 格式</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Toast({ data, onClose }) {
+  useEffect(() => { const t = setTimeout(onClose, 5000); return () => clearTimeout(t); }, [onClose]);
+  return (
+    <div className="toast">
+      <div className="toast-header">
+        <div>
+          <div className="toast-title">✅ 处理完成</div>
+          <div className="toast-body">
+            <strong>{data.filename}</strong><br />
+            识别 {data.questionsFound} 道题目<br />
+            新增 {data.newTypes} 个题型 · 更新 {data.updatedTypes} 个题型
+          </div>
+        </div>
+        <button className="toast-close" onClick={onClose}>×</button>
+      </div>
+    </div>
+  );
+}
+
+// =============================================
+// Main App
+// =============================================
+function App() {
+  const [tab, setTab] = useState("browse");
+  const [toast, setToast] = useState(null);
+  const handleUpload = useCallback((result) => setToast(result), []);
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="header">
+        <div className="header-inner">
+          <div className="logo-area">
+            <div className="logo-icon">Q</div>
+            <div>
+              <div className="logo-title">题型频率引擎</div>
+              <div className="logo-sub">QUESTION TYPE FREQUENCY ENGINE</div>
+            </div>
+          </div>
+          <div className="tabs">
+            <button className={`tab-btn ${tab === 'browse' ? 'active' : ''}`} onClick={() => setTab('browse')}>📂 分类浏览</button>
+            <button className={`tab-btn ${tab === 'upload' ? 'active' : ''}`} onClick={() => setTab('upload')}>📤 上传试卷</button>
+            <button className={`tab-btn ${tab === 'ranking' ? 'active' : ''}`} onClick={() => setTab('ranking')}>🔥 频率排行</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="content">
+        <StatsBar data={QUESTION_DATABASE} />
+
+        {tab === "browse" && (
+          <div className="panel">
+            <TreeBrowser data={QUESTION_DATABASE} />
+          </div>
+        )}
+
+        {tab === "upload" && (
+          <div>
+            <UploadZone onUploadComplete={handleUpload} />
+            <div className="panel" style={{ marginTop: 20 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>🤖 AI 处理流程</div>
+              <div className="ai-flow-grid">
+                {[
+                  { step: "1", title: "OCR 识别", desc: "图片/PDF → 文字", icon: "🔍" },
+                  { step: "2", title: "拆题", desc: "整卷 → 独立题目", icon: "✂️" },
+                  { step: "3", title: "大类分析", desc: "语义识别题目类型", icon: "📊" },
+                  { step: "4", title: "细分归类", desc: "结合答案分小类", icon: "🧠" },
+                  { step: "5", title: "方法标记", desc: "标记解题方法", icon: "🏷️" },
+                  { step: "6", title: "入库统计", desc: "更新频率数据", icon: "💾" },
+                ].map(s => (
+                  <div key={s.step} className="ai-step">
+                    <div className="ai-step-icon">{s.icon}</div>
+                    <div className="ai-step-title">Step {s.step}: {s.title}</div>
+                    <div className="ai-step-desc">{s.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === "ranking" && <FrequencyRanking data={QUESTION_DATABASE} />}
+      </div>
+
+      {toast && <Toast data={toast} onClose={() => setToast(null)} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script></body>
+</html>
