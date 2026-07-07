@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计 · 苏考图谱</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="stats">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">苏</div>
+        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">江苏高考题型统计</span></div>
+      </a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="years.html">考题练习</a>
+        <a href="stats.html" class="active">统计</a>
+      </nav>
+      <form class="search-form" action="search.html">
+        <input type="search" name="q" placeholder="搜索题型 / 方法 / 考点">
+      </form>
+    </div>
+  </header>
+  <section class="page-head" style="padding:30px 0 26px">
+    <div class="container">
+      <h1>统计</h1>
+      <p style="margin-top:6px;font-size:14px">占比、频次、难度、四象限——所有数字从已拆解题目实时计算。</p>
+    </div>
+  </section>
+  <section class="section" style="padding:28px 0 8px">
+    <div class="container">
+      <div class="subject-tabs" id="subject-tabs"></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 style="font-size:16px;margin-bottom:4px">🥧 大题型占分比例</h3>
+          <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">按分值算：哪个板块占分最多，就该给它最多复习时间。</p>
+          <div id="pie-topics"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;margin-bottom:4px">📊 大题型出现次数</h3>
+          <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">主专题维度：历年拆出的题目数。</p>
+          <div id="bars-topics"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="padding:20px 0 8px">
+    <div class="container">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 style="font-size:16px;margin-bottom:4px">🔎 小题型出现次数 TOP10</h3>
+          <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">子专题维度：大题型里具体考哪一块。</p>
+          <div id="bars-subtopics"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;margin-bottom:4px">🔧 解题方法 TOP10</h3>
+          <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">方法维度：同一方法反复考，就是该练熟的套路。</p>
+          <div id="bars-methods"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="padding:20px 0 8px">
+    <div class="container">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 style="font-size:16px;margin-bottom:16px">🎚️ 各专题难度分布</h3>
+          <div id="dist-list"></div>
+        </div>
+        <div class="card" style="padding:16px">
+          <h3 style="font-size:16px;margin:6px 0 12px 6px">🎯 复习四象限（频次 × 难度）</h3>
+          <div id="quadrant"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="padding:20px 0">
+    <div class="container">
+      <div class="section-head" style="margin-bottom:14px">
+        <h2 class="section-title">专题对比总表</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>专题</th><th>出现次数</th><th>分值占比</th>
+              <th>平均难度</th><th>常见位置</th><th>优先级</th>
+            </tr>
+          </thead>
+          <tbody id="topic-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <footer class="site-footer">
+    <div class="container footer-slim">
+      <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
+      学习分析工具，非考试预测；当前为示例数据。
+    </div>
+  </footer>
+  <script src="js/data-math.js"></script>
+  <script src="js/data-chinese.js"></script>
+  <script src="js/data-english.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

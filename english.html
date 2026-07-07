@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英语 · 苏考图谱</title>
+  <meta name="description" content="江苏高考英语题型统计:七大板块框架、高频题型排行、点开题型直接看题。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="subject" data-subject="english">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">苏</div>
+        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">江苏高考题型统计</span></div>
+      </a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="years.html">考题练习</a>
+        <a href="stats.html">统计</a>
+      </nav>
+      <form class="search-form" action="search.html">
+        <input type="search" name="q" placeholder="搜索题型 / 方法 / 考点">
+      </form>
+    </div>
+  </header>
+
+  <section class="page-head" style="padding:30px 0 26px">
+    <div class="container">
+      <h1>英语</h1>
+      <p id="subject-stat-line" style="margin-top:6px;font-size:14px"></p>
+    </div>
+  </section>
+
+  <!-- ===== 顶部统计 ===== -->
+  <section class="section" style="padding:28px 0 8px">
+    <div class="container">
+      <div class="stat-strip">
+        <div class="stat"><div class="num" id="s-questions">–</div><div class="lbl">已拆解题目（示例）</div></div>
+        <div class="stat"><div class="num" id="s-papers">–</div><div class="lbl">已拆解试卷</div></div>
+        <div class="stat"><div class="num" id="s-types">–</div><div class="lbl">题型种数</div></div>
+        <div class="stat"><div class="num" id="s-top" style="font-size:17px;padding-top:8px">–</div><div class="lbl">出现最多的题型</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 高频题型排行 ===== -->
+  <section class="section" style="padding:24px 0 8px">
+    <div class="container">
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:12px">🔥 高频题型 TOP10（出现次数 · 占比）</h3>
+        <div id="type-rank"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 优先拿分板块 ===== -->
+  <section class="section" style="padding:24px 0 8px">
+    <div class="container">
+      <div class="card">
+        <h3 style="font-size:16px">✅ 优先拿分板块</h3>
+        <p style="font-size:13.5px;color:var(--ink-3);margin:6px 0 10px">「考得多 + 拿得稳」的板块——先练到不丢分；压轴难题大家都难，量力而行。</p>
+        <div id="priority-chips"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 题型树（主体） ===== -->
+  <section class="section" style="padding:24px 0 8px">
+    <div class="container">
+      <div class="section-head" style="margin-bottom:14px">
+        <h2 class="section-title">题型分类 · 点开直接看题</h2>
+        <p class="section-desc">板块 → 子专题 → 题型 → 题目和答法，逐层点开。空板块表示真题正在录入。</p>
+      </div>
+      <div id="tree-container"></div>
+    </div>
+  </section>
+
+  <!-- ===== 更多入口 ===== -->
+  <section class="section" style="padding:24px 0">
+    <div class="container">
+      <div class="grid grid-2">
+        <a class="entry-card" href="years.html?subject=english">
+          <h3>📅 按年份浏览</h3>
+          <p>各年英语卷的逐题拆解表。</p>
+          <span class="go">查看历年试卷 →</span>
+        </a>
+        <a class="entry-card" href="stats.html?subject=english">
+          <h3>📊 统计图表</h3>
+          <p>占分扇形图、频次条形图、难度分布、复习四象限。</p>
+          <span class="go">查看统计 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-slim">
+      <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
+      学习分析工具，非考试预测；当前为示例数据。
+    </div>
+  </footer>
+
+  <script src="js/data-math.js"></script>
+  <script src="js/data-chinese.js"></script>
+  <script src="js/data-english.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

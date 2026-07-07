@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>苏考图谱 · 江苏高考题型统计</title>
+  <meta name="description" content="把江苏高考真题拆成题型,统计出现频率、难度和优先级。选科目,点开题型,直接看题。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">苏</div>
+        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">江苏高考题型统计</span></div>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="active">首页</a>
+        <a href="years.html">考题练习</a>
+        <a href="stats.html">统计</a>
+      </nav>
+      <form class="search-form" action="search.html">
+        <input type="search" name="q" placeholder="搜索题型 / 方法 / 考点">
+      </form>
+    </div>
+  </header>
+
+  <!-- ===== 英雄区 ===== -->
+  <section class="hero" style="padding:52px 0 46px">
+    <div class="container">
+      <span class="kicker">江苏高考 · 数据驱动复习</span>
+      <h1>考什么、考多少次，<br>一目了然</h1>
+      <p class="lead">真题逐题拆解、按题型统计频率——哪类题占分最高、用什么方法解，数据直接告诉你。</p>
+      <form class="hero-search" action="search.html">
+        <input type="search" name="q" placeholder="搜索题型、方法、考点，如：导数 / 隐零点 / 错位相减">
+        <button class="btn btn-primary" type="submit">搜索</button>
+      </form>
+      <p id="home-stat-line" style="margin-top:16px;font-size:13px;color:rgba(244,242,236,.6)"></p>
+    </div>
+  </section>
+
+  <!-- ===== App 式入口大卡 ===== -->
+  <section class="section" style="padding-top:40px">
+    <div class="container">
+      <div class="tile-grid">
+        <a class="tile tile-math" href="math.html">
+          <span class="tile-icon">🧮</span>
+          <span class="tile-body">
+            <b>数学</b>
+            <small>已拆解 <span id="cnt-math">–</span> 道题 · 高频题型 · 逐题解析</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile tile-chinese" href="chinese.html">
+          <span class="tile-icon">📖</span>
+          <span class="tile-body">
+            <b>语文</b>
+            <small>七大板块框架 · 示例 <span id="cnt-chinese">–</span> 道 · 数据整理中</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile tile-english" href="english.html">
+          <span class="tile-icon">🔤</span>
+          <span class="tile-body">
+            <b>英语</b>
+            <small>七大板块框架 · 示例 <span id="cnt-english">–</span> 道 · 数据整理中</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile tile-practice" href="years.html">
+          <span class="tile-icon">✏️</span>
+          <span class="tile-body">
+            <b>考题练习</b>
+            <small>按年份逐套刷真题 · 点题直达档案与解析</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile tile-stats" href="stats.html">
+          <span class="tile-icon">📊</span>
+          <span class="tile-body">
+            <b>统计</b>
+            <small>占分比例 · 频次排行 · 难度分布 · 复习四象限</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile tile-search" href="search.html">
+          <span class="tile-icon">🔍</span>
+          <span class="tile-body">
+            <b>搜索</b>
+            <small>题型 / 方法 / 考点 / 年份，一搜直达</small>
+          </span>
+          <span class="tile-arrow">→</span>
+        </a>
+      </div>
+      <p style="margin-top:22px;font-size:14px;color:var(--ink-3)">
+        怎么用：<b style="color:var(--ink-2)">选科目 → 点开题型 → 直接看题和解析</b>；卡住了先看「💡提示」，做完看「🎒带走」。
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-slim">
+      <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
+      学习分析工具，非考试预测；部分年份为示例数据。
+    </div>
+  </footer>
+
+  <script src="js/data-math.js"></script>
+  <script src="js/data-chinese.js"></script>
+  <script src="js/data-english.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
