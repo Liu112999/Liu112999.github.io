@@ -3,7 +3,12 @@
    设计语言：暖纸底 × 深墨蓝 × 赭红点缀 —— 编辑级排版,数据感克制
    ===================================================================== */
 
-@import url("../vendor/fonts/wenkai.css");
+/* 霞鹜文楷·屏幕阅读版(GB) 单文件 · OFL 许可 */
+@font-face {
+  font-family: 'LXGW WenKai Screen';
+  font-style: normal; font-weight: 400; font-display: swap;
+  src: url('./wenkai.woff2') format('woff2');
+}
 
 /* ---------- 设计变量 ---------- */
 :root {
