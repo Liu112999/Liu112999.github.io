@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#EDF5FF">
-  <title>考题练习 · 苏考图谱</title>
-  <meta name="description" content="按年份逐套刷真题：题号、题型、解题方法、难度、优先级，点题直达档案与分步解析。">
+  <title>必拿分练习 · 苏考图谱</title>
+  <meta name="description" content="每张试卷的固定送分位：选择题前1/2 + 填空题前2道 + 解答题前2题——约62分保底分，先练到一分不丢。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="years">
+<body data-page="practice" data-subject="math">
 
   <header class="site-header">
     <div class="container header-inner">
@@ -31,41 +31,31 @@
 
   <section class="page-head">
     <div class="container">
-      <div class="crumbs"><a href="index.html">首页</a> / 考题练习</div>
-      <h1>考题练习</h1>
-      <p style="margin-top:6px;font-size:14px">左边刷整卷真题，右边直奔必拿分——点任意一题进档案，看提示、分步解析和「为什么这么做」。</p>
+      <div class="crumbs"><a href="index.html">首页</a> / <a href="years.html">考题练习</a> / 必拿分练习</div>
+      <h1>必拿分练习 · 先把该拿的分拿到</h1>
+      <p id="practice-sum" style="margin-top:6px;font-size:14px"></p>
     </div>
   </section>
 
-  <!-- ===== 两大入口：真题 / 必拿分练习 ===== -->
+  <!-- ===== 各年必拿题（按年折叠） ===== -->
   <section class="section" style="padding:28px 0 8px">
     <div class="container">
-      <div class="tile-grid two">
-        <a class="tile tile-math reveal" href="#paper-list">
-          <span class="tile-icon">📄</span>
-          <span class="tile-body">
-            <b>历年真题</b>
-            <small>按年份折叠 · 点开看整卷 · 逐题直达档案</small>
-          </span>
-          <span class="tile-arrow">↓</span>
-        </a>
-        <a class="tile tile-english reveal d1" href="practice.html">
-          <span class="tile-icon">✅</span>
-          <span class="tile-body">
-            <b>必拿分练习</b>
-            <small>每卷固定送分位（约62分）· 只刷该拿的分</small>
-          </span>
-          <span class="tile-arrow">→</span>
-        </a>
-      </div>
+      <p class="reveal" style="margin:0 0 18px;font-size:13.5px;color:var(--ink-3)">
+        这些是每张卷子里<b style="color:var(--ink-2)">最该先拿到手的分</b>——难度低、套路清晰、练了就有回报。
+        点开任意一年，直接刷。
+      </p>
+      <div id="practice-main"></div>
     </div>
   </section>
 
-  <section class="section" style="padding:20px 0" id="paper-list">
+  <!-- ===== 专项练习（只刷简单题） ===== -->
+  <section class="section" style="padding:24px 0">
     <div class="container">
-      <div class="subject-tabs" id="subject-tabs"></div>
-      <div id="era-card"></div>
-      <div id="years-container"></div>
+      <div class="card reveal">
+        <h3 style="font-size:16px">🎯 专项练习 · 按板块只刷简单题</h3>
+        <p style="font-size:13.5px;color:var(--ink-3);margin:6px 0 10px">某个板块不稳？点进去只看难度≤3的题，先把这个板块的送分题吃透。</p>
+        <div id="practice-topics"></div>
+      </div>
     </div>
   </section>
 

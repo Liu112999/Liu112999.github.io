@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#EDF5FF">
   <title>搜索 · 苏考图谱</title>
-  <meta name="description" content="搜索江苏高考题目:按题型、解题方法、考点、年份即时检索。">
+  <meta name="description" content="搜索高考题目：按题型、解题方法、考点、年份即时检索，边输入边提示。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -14,27 +15,26 @@
     <div class="container header-inner">
       <a class="brand" href="index.html">
         <div class="brand-mark">苏</div>
-        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">江苏高考题型统计</span></div>
+        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">高考题型数据 · 抢分地图</span></div>
       </a>
       <nav class="nav">
         <a href="index.html">首页</a>
+        <a href="math.html">数学</a>
         <a href="years.html">考题练习</a>
         <a href="stats.html">统计</a>
       </nav>
-      <form class="search-form" action="search.html">
-        <input type="search" name="q" placeholder="搜索题型 / 方法 / 考点">
-      </form>
     </div>
   </header>
 
-  <section class="page-head" style="padding:30px 0 26px">
+  <section class="page-head">
     <div class="container">
+      <div class="crumbs"><a href="index.html">首页</a> / 搜索</div>
       <h1>搜索</h1>
-      <form class="hero-search" onsubmit="return false" style="margin-top:14px">
-        <input type="search" id="search-input" placeholder="题型 / 方法 / 考点 / 年份，如：导数 / 隐零点 / 2024 压轴">
+      <form class="hero-search" onsubmit="return false" style="margin-top:14px;max-width:640px">
+        <input type="search" id="search-input" placeholder="题型 / 方法 / 考点 / 年份，如：导数 / 离心率 / 2024 压轴">
       </form>
       <div id="search-ctx"></div>
-      <p id="search-count" style="margin-top:10px;font-size:13px;color:rgba(244,242,236,.7)"></p>
+      <p id="search-count" style="margin-top:10px;font-size:13px;color:var(--on-dark-soft)"></p>
     </div>
   </section>
 
@@ -45,7 +45,7 @@
   <footer class="site-footer">
     <div class="container footer-slim">
       <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
-      学习分析工具，非考试预测；当前为示例数据。
+      所有统计来自已录入真题的实时计算；学习分析工具，非考试预测。
     </div>
   </footer>
 

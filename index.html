@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>苏考图谱 · 江苏高考题型统计</title>
-  <meta name="description" content="把江苏高考真题拆成题型,统计出现频率、难度和优先级。选科目,点开题型,直接看题。">
+  <meta name="theme-color" content="#EDF5FF">
+  <title>苏考图谱 · 数据帮你抢分的高考题型统计</title>
+  <meta name="description" content="把江苏新高考真题逐题拆解成数据：哪类题年年考、用什么方法解、哪些分最好拿——搜一下，直接告诉你。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -14,96 +15,123 @@
     <div class="container header-inner">
       <a class="brand" href="index.html">
         <div class="brand-mark">苏</div>
-        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">江苏高考题型统计</span></div>
+        <div><span class="brand-name">苏考图谱</span><span class="brand-sub">高考题型数据 · 抢分地图</span></div>
       </a>
       <nav class="nav">
         <a href="index.html" class="active">首页</a>
+        <a href="math.html">数学</a>
         <a href="years.html">考题练习</a>
         <a href="stats.html">统计</a>
       </nav>
       <form class="search-form" action="search.html">
-        <input type="search" name="q" placeholder="搜索题型 / 方法 / 考点">
+        <input type="search" name="q" placeholder="搜题型 / 方法 / 考点">
       </form>
     </div>
   </header>
 
   <!-- ===== 英雄区 ===== -->
-  <section class="hero" style="padding:52px 0 46px">
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-orb orb-1"></div>
+      <div class="hero-orb orb-2"></div>
+      <div class="hero-orb orb-3"></div>
+    </div>
     <div class="container">
-      <span class="kicker">江苏高考 · 数据驱动复习</span>
-      <h1>考什么、考多少次，<br>一目了然</h1>
-      <p class="lead">真题逐题拆解、按题型统计频率——哪类题占分最高、用什么方法解，数据直接告诉你。</p>
-      <form class="hero-search" action="search.html">
-        <input type="search" name="q" placeholder="搜索题型、方法、考点，如：导数 / 隐零点 / 错位相减">
+      <span class="kicker reveal"><span class="dot-live"></span>江苏新高考 · 真题数据 · 持续更新</span>
+      <h1 class="reveal d1">别再盲目刷题，<br>先抢<span class="grad">最好拿的分</span></h1>
+      <p class="lead reveal d2">我们把所有新高考Ⅰ卷<b>逐题拆解成数据</b>：哪类题年年考、用什么方法解、哪些分最容易到手——不用自己琢磨，数据直接告诉你。</p>
+      <form class="hero-search reveal d3" action="search.html">
+        <input type="search" name="q" placeholder="搜索题型、方法、考点，如：导数 / 离心率 / 错位相减">
         <button class="btn btn-primary" type="submit">搜索</button>
       </form>
-      <p id="home-stat-line" style="margin-top:16px;font-size:13px;color:rgba(244,242,236,.6)"></p>
+      <div class="hot-chips reveal d4" id="hot-chips"></div>
+      <div class="hero-stats reveal d4">
+        <div class="hero-stat"><div class="n" id="hs-papers" data-count="0">0</div><div class="l">套真题在库 · <span id="hs-full">—</span></div></div>
+        <div class="hero-stat"><div class="n" id="hs-questions" data-count="0">0</div><div class="l">道题逐题标注解法</div></div>
+        <div class="hero-stat"><div class="n" id="hs-types" data-count="0">0</div><div class="l">种题型归并统计</div></div>
+      </div>
     </div>
   </section>
 
   <!-- ===== App 式入口大卡 ===== -->
-  <section class="section" style="padding-top:40px">
+  <section class="section" style="padding:48px 0 14px">
     <div class="container">
       <div class="tile-grid">
-        <a class="tile tile-math" href="math.html">
+        <a class="tile tile-math reveal" href="math.html">
           <span class="tile-icon">🧮</span>
           <span class="tile-body">
-            <b>数学</b>
-            <small>已拆解 <span id="cnt-math">–</span> 道题 · 高频题型 · 逐题解析</small>
+            <b>数学 <span class="tag-live">已上线</span></b>
+            <small>已拆解 <span id="cnt-math">–</span> 道题 · 高频题型 · 分步解析</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
-        <a class="tile tile-chinese" href="chinese.html">
+        <a class="tile tile-chinese reveal d1" href="chinese.html">
           <span class="tile-icon">📖</span>
           <span class="tile-body">
-            <b>语文</b>
-            <small>七大板块框架 · 示例 <span id="cnt-chinese">–</span> 道 · 数据整理中</small>
+            <b>语文 <span class="tag-beta">整理中</span></b>
+            <small>七大板块复习框架已建好 · 真题录入中</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
-        <a class="tile tile-english" href="english.html">
+        <a class="tile tile-english reveal d2" href="english.html">
           <span class="tile-icon">🔤</span>
           <span class="tile-body">
-            <b>英语</b>
-            <small>七大板块框架 · 示例 <span id="cnt-english">–</span> 道 · 数据整理中</small>
+            <b>英语 <span class="tag-beta">整理中</span></b>
+            <small>七大板块复习框架已建好 · 真题录入中</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
-        <a class="tile tile-practice" href="years.html">
+        <a class="tile tile-practice reveal d1" href="years.html">
           <span class="tile-icon">✏️</span>
           <span class="tile-body">
             <b>考题练习</b>
-            <small>按年份逐套刷真题 · 点题直达档案与解析</small>
+            <small>历年真题按年折叠 · 必拿分练习直达送分题</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
-        <a class="tile tile-stats" href="stats.html">
+        <a class="tile tile-stats reveal d2" href="stats.html">
           <span class="tile-icon">📊</span>
           <span class="tile-body">
             <b>统计</b>
-            <small>占分比例 · 频次排行 · 难度分布 · 复习四象限</small>
+            <small>题数占比 · 频次排行 · 难度分布 · 复习四象限</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
-        <a class="tile tile-search" href="search.html">
+        <a class="tile tile-search reveal d3" href="search.html">
           <span class="tile-icon">🔍</span>
           <span class="tile-body">
             <b>搜索</b>
-            <small>题型 / 方法 / 考点 / 年份，一搜直达</small>
+            <small>题型 / 方法 / 考点 / 年份，边输入边提示</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
       </div>
-      <p style="margin-top:22px;font-size:14px;color:var(--ink-3)">
-        怎么用：<b style="color:var(--ink-2)">选科目 → 点开题型 → 直接看题和解析</b>；卡住了先看「💡提示」，做完看「🎒带走」。
+      <p class="reveal" style="margin-top:22px;font-size:14px;color:var(--ink-3)">
+        怎么用：<b style="color:var(--ink-2)">选科目 → 点开题型 → 直接看题和分步解析</b>；卡住了先看「💡提示」，每步不懂就点「为什么」。
       </p>
+    </div>
+  </section>
+
+  <!-- ===== 我们怎么做数据 ===== -->
+  <section class="section" style="padding:20px 0 56px">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2 class="section-title">这不是题库，是一张抢分地图</h2>
+        <p class="section-desc">市面上不缺题，缺的是「先做哪道」的答案。我们用四步把真题变成数据：</p>
+      </div>
+      <div class="flow-strip">
+        <div class="flow-step reveal"><span class="no">1</span><b>收集真题</b><small>所有新高考Ⅰ卷，逐年入库</small></div>
+        <div class="flow-step reveal d1"><span class="no">2</span><b>逐题拆解</b><small>每道题单独建档：题干、答案、分步解析</small></div>
+        <div class="flow-step reveal d2"><span class="no">3</span><b>四层打标</b><small>专题 → 子专题 → 题型 → 解题方法</small></div>
+        <div class="flow-step reveal d3"><span class="no">4</span><b>算出重点</b><small>频次 × 难度 → 哪些分好拿、先练什么</small></div>
+      </div>
     </div>
   </section>
 
   <footer class="site-footer">
     <div class="container footer-slim">
       <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
-      学习分析工具，非考试预测；部分年份为示例数据。
+      所有统计来自已录入真题的实时计算；学习分析工具，非考试预测。
     </div>
   </footer>
 
