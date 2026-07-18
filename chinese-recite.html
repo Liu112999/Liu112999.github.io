@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#EDF5FF">
-  <title>题目档案 · 苏考图谱</title>
-  <meta name="description" content="一道题的完整档案：分类标签、解题方法、分步解析、每步可展开的「为什么」、相似题。">
+  <meta name="theme-color" content="#FBFCFB">
+  <title>必背默写 · 语文 · 苏考图谱</title>
+  <meta name="description" content="江苏新高考语文：默写考情、文言诗歌五年一览、作文题库与固定模板——按频率背，不瞎背。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="katex.min.css">
 </head>
-<body data-page="question">
+<body data-page="cn-sub" data-subject="chinese" data-sec="recite">
 
   <header class="site-header">
     <div class="container header-inner">
@@ -20,7 +19,7 @@
       </a>
       <nav class="nav">
         <a href="index.html" class="">首页</a>
-        <div class="ndd"><button class="ndd-t" type="button">科目 ▾</button><div class="ndd-p"><a href="math.html">🧮 数学</a><a href="chinese.html">📖 语文</a><a href="english.html">🔤 英语</a></div></div>
+        <div class="ndd"><button class="ndd-t active" type="button">科目 ▾</button><div class="ndd-p"><a href="math.html">🧮 数学</a><a href="chinese.html">📖 语文</a><a href="english.html">🔤 英语</a></div></div>
         <div class="ndd"><button class="ndd-t" type="button">考题练习 ▾</button><div class="ndd-p"><a href="years.html?subject=math">🧮 数学</a><a href="years.html?subject=chinese">📖 语文</a><a href="years.html?subject=english">🔤 英语</a></div></div>
         <div class="ndd"><button class="ndd-t" type="button">统计 ▾</button><div class="ndd-p"><a href="stats.html?subject=math">🧮 数学</a><a href="stats.html?subject=chinese">📖 语文</a><a href="stats.html?subject=english">🔤 英语</a></div></div>
       </nav>
@@ -30,27 +29,25 @@
     </div>
   </header>
 
-  <section class="page-head" style="padding:30px 0 26px">
+  <section class="page-head">
+    <img class="ink-scroll" src="shanshui.svg" alt="" aria-hidden="true">
     <div class="container">
-      <div class="crumbs"><a href="index.html">首页</a> / <a href="years.html">考题练习</a> / 题目档案</div>
-      <h1>题目档案</h1>
-      <p style="margin-top:6px;font-size:14px">一道题的完整档案：分类、方法、分步解析——每步不懂就点「为什么」。</p>
+      <div class="crumbs"><a href="index.html">首页</a> / <a href="chinese.html">语文</a> / 必背默写</div>
+      <h1>必背默写</h1>
+      <p style="margin-top:6px;font-size:14px;color:var(--ink-2)">6 分白送题。五年考过的 15 篇按年份排好——考过的篇目就在命题人射程内，优先滚动背。</p>
     </div>
   </section>
 
-  <section class="section" style="padding:28px 0">
-    <div class="container" id="q-container"></div>
+  <section class="section" style="padding:26px 0 46px">
+    <div class="container" id="cn-sub-main"></div>
   </section>
 
   <footer class="site-footer">
     <div class="container footer-slim">
-      <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。
-      所有统计来自已录入真题的实时计算；学习分析工具，非考试预测。
+      <b>苏考图谱</b> · 学习分析工具，非考试预测。返回 <a href="chinese.html">语文板块</a>
     </div>
   </footer>
 
-  <script src="katex.min.js"></script>
-  <script src="auto-render.min.js"></script>
   <script src="data-math.js"></script>
   <script src="data-chinese.js"></script>
   <script src="data-english.js"></script>

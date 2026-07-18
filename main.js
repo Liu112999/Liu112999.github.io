@@ -326,8 +326,8 @@ function qCardHTML(q, opts = {}) {
   const subj = opts.showSubject ? `<span class="badge badge-low">${subjectName(q.subject)}</span> ` : "";
   return `<div class="q-card">
     <div class="q-card-top">
-      <span class="q-card-src">${subj}${p.year} ${p.type} · 第${q.number}题 · ${q.section} ${q.score}分</span>
-      ${diffBadge(q.difficulty)}
+      <span class="q-card-src">${subj}${p.year} ${p.type} · ${q.label || `第${q.number}题`} · ${q.section} ${q.score}分</span>
+      ${q.difficulty ? diffBadge(q.difficulty) : ""}
     </div>
     <div class="q-card-title">${qTitle(q)}</div>
     <div class="q-card-tags">
@@ -341,6 +341,23 @@ function qCardHTML(q, opts = {}) {
 }
 
 function questionTableHTML(qs) {
+  /* 语言学科（语文/英语）按板块条目展示：无难度/方法列，label 为卷面题号 */
+  if (qs.length && qs[0].label) {
+    const rows = qs.map(q => `
+      <tr class="clickable" data-id="${q.id}">
+        <td><b>${q.label}</b></td>
+        <td>${q.section}</td>
+        <td>${q.score}分</td>
+        <td>${q.title}</td>
+        <td>${priBadgeShort(topicOf(q.topic).priority)}</td>
+      </tr>`).join("");
+    return `<div class="table-wrap"><table>
+      <thead><tr>
+        <th>题号</th><th>板块</th><th>分值</th><th>本卷内容</th><th>优先级</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }
   const rows = qs.map(q => `
     <tr class="clickable" data-id="${q.id}">
       <td><b>第${q.number}题</b></td>
@@ -414,41 +431,28 @@ function openFromHash(root) {
 
 /* ---------- 首页 ---------- */
 function renderHome() {
-  const mathPapers = SUBJECT_DATA.math.papers;
-  const full = mathPapers.filter(p => p.status === "已拆解").length;
-  const types = new Set(SUBJECT_DATA.math.questions.map(q => q.type)).size;
-  const nQ = SUBJECT_DATA.math.questions.length;
+  const M = SUBJECT_DATA.math, C = SUBJECT_DATA.chinese;
+  const types = new Set(M.questions.map(q => q.type)).size;
 
   const set = (id, v) => { const el = $(id); if (el) { el.dataset.count = v; el.textContent = "0"; } };
-  set("#hs-papers", mathPapers.length);
-  set("#hs-questions", nQ);
-  set("#hs-types", types);
-  const fullEl = $("#hs-full");
-  if (fullEl) fullEl.textContent = `其中 ${full} 套完整拆解`;
+  set("#hs-papers", M.papers.length + C.papers.length);      /* 全站真题总数 */
+  set("#hs-questions", M.questions.length);                   /* 数学题 */
+  set("#hs-types", types);                                    /* 数学题型 */
+  set("#hs-dict", (C.knowledge && C.knowledge.dictation || []).length);  /* 语文默写篇目 */
+  set("#hs-essay", (C.knowledge && C.knowledge.essays || []).length);    /* 语文作文题库 */
 
   const cm = $("#cnt-math");
-  if (cm) cm.textContent = nQ;
-  ["chinese", "english"].forEach(s => {
-    const el = $("#cnt-" + s);
-    if (el) el.textContent = SUBJECT_DATA[s].questions.length || "";
-  });
-
-  /* 热门搜索芯片：考得最多的题型 */
-  const chipBox = $("#hot-chips");
-  if (chipBox) {
-    const tc = {};
-    SUBJECT_DATA.math.questions.forEach(q => tc[q.type] = (tc[q.type] || 0) + 1);
-    const top = Object.entries(tc).sort((a, b) => b[1] - a[1]).slice(0, 4);
-    chipBox.innerHTML = `<span class="hint">大家都在搜：</span>` +
-      top.map(([n, c]) => `<a href="search.html?q=${encodeURIComponent(n)}">${n} · ${c}次</a>`).join("");
-  }
+  if (cm) cm.textContent = M.questions.length;
+  const cc = $("#cnt-chinese");
+  if (cc) cc.textContent = C.papers.length;
 }
 
-/* ---------- 数学科目页 ---------- */
+/* ---------- 科目页分发 ---------- */
 function renderSubject() {
   const subId = currentSubjectId();
   const data = SUBJECT_DATA[subId];
   if (data.status === "beta") { renderBeta(subId); return; }
+  if (data.knowledge) { renderChinesePage(data); return; }   /* 语言学科：背诵频率页 */
   const total = data.questions.length;
 
   const full = data.papers.filter(p => p.status === "已拆解").length;
@@ -480,6 +484,89 @@ function renderSubject() {
 
   drawTypeRank(subId);
   drawTree(subId);
+  scanFx();
+}
+
+/* ---------- 语文主页（瘦身版：入口 + 卷面结构一览） ---------- */
+function renderChinesePage(data) {
+  const box = $("#cn-structure");
+  if (box) {
+    box.innerHTML = data.topics.map(t => `
+      <div class="cn-row">
+        <span class="pos">${t.sections[0] || ""}</span>
+        <b>${t.name}</b>
+        <small>${t.advice.split("：")[0].split("；")[0]}</small>
+        ${priBadgeShort(t.priority)}
+      </div>`).join("");
+  }
+  scanFx();
+}
+
+/* ---------- 语文子页面：必背默写 / 作文专区 / 文言诗歌 ---------- */
+function renderCnSub() {
+  const data = SUBJECT_DATA.chinese, K = data.knowledge, G = data.essayGuide;
+  const sec = document.body.dataset.sec;
+  const box = $("#cn-sub-main");
+  if (!box) return;
+
+  if (sec === "recite") {
+    const tip = `<div class="notice" style="margin-bottom:14px">背诵策略：考过的篇目优先滚动背（命题人明显在射程内）；《关雎》《送杜少府》是初中篇目——<b>初中背过的也会考</b>。点每一篇可展开考过的原句，全文可跳转权威来源古诗文网。</div>`;
+    box.innerHTML = tip + K.dictation.map(d => `
+      <details class="rc-item reveal">
+        <summary><span class="k-year">${d.year}</span><b>《${d.piece}》</b><span class="rc-meta">${d.author} · ${d.era}</span></summary>
+        <div class="rc-body">
+          <div class="rc-quote">考过的句子：${d.quote}</div>
+          <a class="btn btn-soft" style="font-size:13px;padding:7px 16px" href="${d.link}" target="_blank" rel="noopener">查看全文（古诗文网）→</a>
+        </div>
+      </details>`).join("");
+  }
+
+  if (sec === "essay") {
+    const years = K.essays.map(e => `
+      <details class="rc-item reveal">
+        <summary><span class="k-year">${e.year}</span><span class="chip chip-cat">${e.cat}</span><span class="chip">${e.sub}</span><b style="font-weight:600;font-size:13.5px;color:var(--ink-2)">${e.prompt.slice(0, 26)}…</b></summary>
+        <div class="rc-body">
+          <p style="font-size:14px;line-height:1.95;margin-top:8px"><b>材料：</b>${e.prompt}</p>
+          <div class="eg-eye">🎯 <b>题眼：</b>${e.eye}</div>
+          ${e.angles.map((a, i) => `<div class="eg-angle"><span class="no2">${i + 1}</span>立意方向：${a}</div>`).join("")}
+          <div class="eg-hook">📚 可引名句：${e.hook}</div>
+          <small style="color:var(--ink-3);display:block;margin-top:8px">💡 ${e.note}</small>
+        </div>
+      </details>`).join("");
+    const steps = `<div class="card reveal" style="margin-top:22px">
+      <h3 style="font-size:16.5px;margin-bottom:10px">🧱 议论文五段模板（引—议—联—结，背熟直接套）</h3>
+      <p class="guide-intro">${G.intro}</p>
+      <div class="steps">${G.steps.map(st => `<div class="sol-step">
+        <b class="g-name">${st.name}</b>
+        <div class="g-how">${st.how}</div>
+        <div class="g-demo">✍️ ${st.demo}</div>
+      </div>`).join("")}</div>
+      <div class="sol-takeaway" style="margin-top:16px"><b>🗝️ 铁律：</b>${G.rules.join("　")}</div>
+    </div>`;
+    const bank = `<div class="section-head reveal" style="margin:26px 0 12px"><h2 class="section-title" style="font-size:19px">📚 引经据典弹药库</h2>
+      <p class="section-desc">按大类各备两三句，写作时用上一句就能提档次——引用要准，宁可不用不可用错。</p></div>
+      <div class="grid grid-2">${G.quoteBank.map(qb => `<div class="qb-card reveal"><h4>${qb.cat}</h4>${qb.quotes.map(q => `<p>${q}</p>`).join("")}</div>`).join("")}</div>`;
+    box.innerHTML = `<div class="section-head reveal" style="margin-bottom:12px"><h2 class="section-title" style="font-size:19px">🗂 五年真题 · 逐题审题</h2>
+      <p class="section-desc">每道题：材料 → 题眼 → 立意方向 → 可引名句。先学会「怎么想」，再背「怎么写」。</p></div>` + years + steps + bank;
+  }
+
+  if (sec === "classics") {
+    const wy = K.classical.map(c => `
+      <details class="rc-item reveal">
+        <summary><span class="k-year">${c.year}</span><b>${c.source}</b><span class="chip">${c.genre}</span></summary>
+        <div class="rc-body"><div class="rc-text">${c.text || ""}</div>
+        <small style="color:var(--ink-3)">💡 ${c.note}</small></div>
+      </details>`).join("");
+    const sh = K.poetry.map(c => `
+      <details class="rc-item reveal">
+        <summary><span class="k-year">${c.year}</span><b>《${c.title}》</b><span class="rc-meta">${c.author} · ${c.genre}</span><span class="chip">${c.theme}</span></summary>
+        <div class="rc-body"><div class="rc-text">${c.text || ""}</div></div>
+      </details>`).join("");
+    box.innerHTML = `<div class="section-head reveal" style="margin-bottom:12px"><h2 class="section-title" style="font-size:19px">📖 文言文 · 五年考题原文</h2>
+      <p class="section-desc">文本形态逐年升级：史传 → 双文本对读 → 多文本互证。点开读原文（提取自官方解析卷）。</p></div>` + wy +
+      `<div class="section-head reveal" style="margin:28px 0 12px"><h2 class="section-title" style="font-size:19px">🖋 古代诗歌 · 五年全诗</h2>
+      <p class="section-desc">五年里四年考宋代诗词——宋诗宋词是绝对主场（朝代频率见<a href="stats.html?subject=chinese">语文统计</a>）。</p></div>` + sh;
+  }
   scanFx();
 }
 
@@ -587,13 +674,61 @@ function renderStats() {
   const data = SUBJECT_DATA[subId];
   const qs = data.questions;
 
-  if (!qs.length) {  /* 语文/英语：真实数据未录入 */
+  if (!qs.length) {  /* 未录入学科：真实数据为空 */
     $("#stats-main").innerHTML = `<div class="card">
       <h3 style="font-size:16px">📊 ${data.name}统计 · 整理中</h3>
       <p style="font-size:14px;color:var(--ink-2);margin-top:8px">
         ${data.name}真题正在逐题拆解，录入后这里会自动生成占分环形图、高频题型、难度分布和复习四象限。
         可以先看 <a href="stats.html?subject=math">数学统计</a>，或到<a href="${SUBJECT_META.find(m => m.id === subId).page}">${data.name}板块</a>看复习框架。</p>
     </div>`;
+    return;
+  }
+
+  if (data.knowledge) {  /* 语言学科：朝代频率 + 文体 + 语用考点（按次数统计，不按分值） */
+    const K = data.knowledge;
+    /* 朝代频率：默写篇目 + 诗歌考题（20条真实数据） */
+    const eraCnt = {};
+    [...K.dictation, ...K.poetry].forEach(x => { eraCnt[x.era] = (eraCnt[x.era] || 0) + 1; });
+    const eras = Object.entries(eraCnt).sort((x, y) => y[1] - x[1]);
+    const maxE = eras[0][1];
+    const eraBars = eras.map(([e, n]) => `
+      <div class="rank-row">
+        <div class="rank-main"><div class="rank-name">${e}</div></div>
+        <div class="bar-track rank-bar"><div class="bar-fill" data-w="${Math.round(n / maxE * 100)}"></div></div>
+        <span class="rank-count">${n} 篇</span>
+      </div>`).join("");
+    const wenti = `<div class="cn-row"><span class="pos">写作文体</span><b>材料作文</b><small>${K.essays.length}/${K.essays.length} 年全是材料作文——议论文是最稳妥文体，模板见<a href="chinese-essay.html">作文专区</a></small></div>`;
+    $("#stats-main").innerHTML = `
+      <div class="grid-4 stat-grid reveal" data-grow-box style="margin-bottom:22px">
+        <div class="stat"><div class="num" data-count="${data.papers.length}">0</div><div class="lab">套真题已拆解</div></div>
+        <div class="stat"><div class="num" data-count="${K.dictation.length}">0</div><div class="lab">篇默写考过篇目</div></div>
+        <div class="stat"><div class="num" data-count="${K.classical.length + K.poetry.length}">0</div><div class="lab">篇文言/诗歌原文</div></div>
+        <div class="stat"><div class="num" data-count="${K.essays.length}">0</div><div class="lab">道作文真题已审题</div></div>
+      </div>
+      <div class="card reveal" style="margin-bottom:20px">
+        <h3 style="font-size:16px;margin-bottom:6px">🏛 诗文朝代频率（默写篇目 + 诗歌考题，按出现次数）</h3>
+        <p style="font-size:13px;color:var(--ink-3);margin-bottom:10px">背诗先背高频朝代——数据说话，别按喜好背。</p>
+        <div data-grow-box>${eraBars}</div>
+      </div>
+      <div class="card reveal" style="margin-bottom:20px">
+        <h3 style="font-size:16px;margin-bottom:10px">✍️ 写作文体统计</h3>
+        ${wenti}
+      </div>
+      <div class="card reveal" style="margin-bottom:20px">
+        <h3 style="font-size:16px;margin-bottom:12px">🔁 语用考点五年出现频次</h3>
+        <div data-grow-box>${K.langUse.map(p => `
+          <div class="rank-row">
+            <div class="rank-main"><div class="rank-name">${p.point}</div><div class="rank-path">${p.note}</div></div>
+            <div class="bar-track rank-bar"><div class="bar-fill" data-w="${Math.round(p.years.length / data.papers.length * 100)}"></div></div>
+            <span class="rank-count">${p.years.length}/${data.papers.length} 年</span>
+          </div>`).join("")}</div>
+      </div>
+      <p style="margin-top:6px">
+        <a class="btn btn-brand" href="chinese-recite.html">📜 去背默写</a>
+        <a class="btn btn-soft" href="chinese-essay.html">✍️ 作文专区</a>
+        <a class="btn btn-soft" href="years.html?subject=chinese">五套真题</a>
+      </p>`;
+    scanFx();
     return;
   }
 
@@ -680,6 +815,7 @@ function mustGetNumbers(p) {
   return [];
 }
 function mustGetPacks(subId) {
+  if (subId !== "math") return [];  /* 必拿分是数学卷面规则；语英的「必拿」在各自板块页 */
   const data = SUBJECT_DATA[subId];
   return data.papers
     .filter(p => p.status === "已拆解")
@@ -817,6 +953,31 @@ function renderYears() {
   const data = SUBJECT_DATA[subId];
   $("#subject-tabs").innerHTML = subjectTabsHTML(subId, "years.html");
 
+  /* 顶部双入口：按学科渲染，点哪科给哪科的东西 */
+  const ent = $("#year-entries");
+  if (ent) {
+    const E = {
+      math: [
+        ["📄", "历年真题", "按年份折叠 · 点开看整卷 · 逐题直达档案", "#paper-list", "↓"],
+        ["✅", "必拿分练习", "每张卷里最该先拿到手的分 · 直接给题", "practice.html?subject=math", "→"]
+      ],
+      chinese: [
+        ["📜", "必背默写", "五年考过的 15 篇 · 先背命题人射程内的", "chinese-recite.html", "→"],
+        ["✍️", "作文专区", "逐年审题 + 五段模板 + 名句弹药库", "chinese-essay.html", "→"]
+      ],
+      english: [
+        ["📄", "历年真题", "真题拆解录入中", "#paper-list", "↓"],
+        ["🧭", "板块框架", "七大板块的复习策略先看起来", "english.html", "→"]
+      ]
+    };
+    ent.innerHTML = (E[subId] || E.math).map(([ic, t, d, href, ar], i2) => `
+      <a class="tile reveal${i2 ? " d1" : ""}" href="${href}">
+        <span class="tile-icon">${ic}</span>
+        <span class="tile-body"><b>${t}</b><small>${d}</small></span>
+        <span class="tile-arrow">${ar}</span>
+      </a>`).join("");
+  }
+
   const era = $("#era-card");
   if (era) {
     era.innerHTML = subId !== "math" ? "" : `<div class="card reveal" style="margin-bottom:24px">
@@ -850,11 +1011,12 @@ function renderYears() {
     const pct = Math.round(qs.length / p.total * 100);
     const note = p.status === "部分整理"
       ? `<div class="notice" style="margin:10px 0 12px">部分整理（已录入 ${qs.length}/${p.total} 题），持续更新中。</div>` : "";
-    const mgNums = new Set(mustGetNumbers(p));
+    const isLang = qs.length && qs[0].label;
+    const mgNums = new Set(isLang ? [] : mustGetNumbers(p));
     const quick = qs.length
       ? `<div style="margin:10px 0 12px">${qs.map(q => `<a class="chip" href="question.html?id=${q.id}"
-           title="${qTitle(q)}" ${mgNums.has(q.number) ? 'style="border-color:var(--easy);color:var(--easy)"' : ""}>${q.number}</a>`).join("")}
-         <span style="font-size:12px;color:var(--ink-3)">（绿色 = 建议先拿）</span></div>`
+           title="${qTitle(q)}" ${mgNums.has(q.number) ? 'style="border-color:var(--easy);color:var(--easy)"' : ""}>${isLang ? q.section : q.number}</a>`).join("")}
+         ${isLang ? "" : `<span style="font-size:12px;color:var(--ink-3)">（绿色 = 建议先拿）</span>`}</div>`
       : "";
     return `<div class="tree-t1 reveal" id="y${p.year}">
       <div class="tree-row t1-row" data-toggle>
@@ -895,7 +1057,7 @@ function renderPractice() {
 
   if (!packs.length) {
     box.innerHTML = `<div class="card"><h3 style="font-size:16px">✅ 必拿分练习 · 整理中</h3>
-      <p style="font-size:14px;color:var(--ink-2);margin-top:8px">${data.name}的完整试卷还在录入，先到<a href="math.html">数学板块</a>刷必拿题。</p></div>`;
+      <p style="font-size:14px;color:var(--ink-2);margin-top:8px">${data.name}的完整试卷还在录入，数学的必拿分在这里；语文的「必拿分」是背诵——去<a href="chinese-recite.html">必背默写</a>先拿最稳的 6 分。</p></div>`;
     return;
   }
 
@@ -1084,9 +1246,9 @@ function renderQuestion() {
     <p style="color:var(--ink-2);font-size:15px;margin-top:4px">${qTitle(q)}</p>
 
     <div class="q-detail-grid">
-      <div class="q-field"><div class="k">年份 / 位置</div><div class="v">${p.year} · ${q.section} 第${q.number}题 · ${q.score}分</div></div>
-      <div class="q-field"><div class="k">难度</div><div class="v">${DIFF_LABEL[q.difficulty]}（${q.difficulty}/5）</div></div>
-      <div class="q-field"><div class="k">复习优先级</div><div class="v">${q.priority}</div></div>
+      <div class="q-field"><div class="k">年份 / 位置</div><div class="v">${p.year} · ${q.section} ${q.label || `第${q.number}题`} · ${q.score}分</div></div>
+      <div class="q-field"><div class="k">难度</div><div class="v">${q.difficulty ? `${DIFF_LABEL[q.difficulty]}（${q.difficulty}/5）` : "—"}</div></div>
+      <div class="q-field"><div class="k">复习优先级</div><div class="v">${q.priority || topicOf(q.topic).priority}</div></div>
       <div class="q-field"><div class="k">主专题</div><div class="v"><a href="search.html?topic=${q.topic}">${t.name}</a></div></div>
       <div class="q-field"><div class="k">子专题</div><div class="v"><a href="search.html?sub=${encodeURIComponent(q.subTopic)}&subject=${q.subject}">${q.subTopic}</a></div></div>
       <div class="q-field"><div class="k">题型</div><div class="v"><a href="search.html?q=${encodeURIComponent(q.type)}" title="看同题型的题">${q.type}${sameType > 1 ? ` · ${sameType}题` : ""}</a></div></div>
@@ -1167,6 +1329,19 @@ function renderQuestion() {
    ===================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   /* 页头滚动态 */
+  /* 分科主题色（语文=水墨暖色 / 英语=淡草绿） */
+  const themeSub = new URLSearchParams(location.search).get("subject") || document.body.dataset.subject;
+  if (themeSub && themeSub !== "math" && SUBJECT_DATA[themeSub]) document.body.classList.add("sub-" + themeSub);
+
+  /* 导航分科下拉：点开选科，点外面关闭 */
+  $$(".ndd-t").forEach(btn => btn.addEventListener("click", e => {
+    e.preventDefault(); e.stopPropagation();
+    const dd = btn.parentElement;
+    $$(".ndd.open").forEach(x => { if (x !== dd) x.classList.remove("open"); });
+    dd.classList.toggle("open");
+  }));
+  document.addEventListener("click", () => $$(".ndd.open").forEach(x => x.classList.remove("open")));
+
   const header = $(".site-header");
   if (header) {
     const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 30);
@@ -1182,7 +1357,8 @@ document.addEventListener("DOMContentLoaded", () => {
     search: renderSearch,
     years: renderYears,
     practice: renderPractice,
-    question: renderQuestion
+    question: renderQuestion,
+    "cn-sub": renderCnSub
   };
   (renderers[page] || (() => {}))();
 

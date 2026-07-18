@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <!-- 苏考图谱 · 语文板块水墨横卷「宣纸墨境」 v2
+       构图：左上留白给标题；中景远山偏右；右侧石峰群；下部水面孤舟；雁阵；右上垂松。
+       全为浓淡墨阶，唯一异色为山影青。 -->
+  <defs>
+    <filter id="inkFar" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="10"/>
+      <feGaussianBlur stdDeviation="4.5"/>
+    </filter>
+    <filter id="inkMid" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="4" seed="21" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="14"/>
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+    <!-- 近景干笔边：高频扰动+轻糊 -->
+    <filter id="inkNear" x="-12%" y="-12%" width="124%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045 0.07" numOctaves="4" seed="42" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9"/>
+      <feGaussianBlur stdDeviation="0.7"/>
+    </filter>
+    <filter id="inkSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1"/>
+    </filter>
+    <filter id="tuft" x="-40%" y="-40%" width="180%" height="180%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.12 0.12" numOctaves="3" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/>
+      <feGaussianBlur stdDeviation="0.8"/>
+    </filter>
+    <filter id="mistBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7A8C99" stop-opacity=".55"/>
+      <stop offset=".62" stop-color="#8A9AA6" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#98A8B2" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5A6B77" stop-opacity=".72"/>
+      <stop offset=".55" stop-color="#6E8291" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#8598A4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#414D57" stop-opacity=".8"/>
+      <stop offset=".55" stop-color="#54646E" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#6E8291" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gMistH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBFCFB" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FBFCFB" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#FBFCFB" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="gMistR" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#FBFCFB" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#FBFCFB" stop-opacity="0"/>
+    </radialGradient>
+    <!-- 雁：两笔淡墨 -->
+    <g id="bird">
+      <path d="M0 5 Q6 -1 12 4" fill="none" stroke="#39434C" stroke-width="1.7" stroke-linecap="round"/>
+      <path d="M12 4 Q18 -2 25 4" fill="none" stroke="#39434C" stroke-width="1.7" stroke-linecap="round"/>
+    </g>
+    <!-- 松针盘：下扇形密针（约160°朝下摊开的一坨针叶） -->
+    <g id="pad">
+      <g fill="none" stroke="#20262B" stroke-linecap="round" stroke-width=".9">
+        <path d="M0 0 L-22 3"/><path d="M0 0 L-21 7"/><path d="M0 0 L-19 11"/>
+        <path d="M0 0 L-16 14"/><path d="M0 0 L-12 17"/><path d="M0 0 L-8 19"/>
+        <path d="M0 0 L-3 20"/><path d="M0 0 L2 20"/><path d="M0 0 L7 19"/>
+        <path d="M0 0 L12 17"/><path d="M0 0 L16 14"/><path d="M0 0 L19 10"/>
+        <path d="M0 0 L21 6"/><path d="M0 0 L22 2"/>
+        <path d="M0 0 L-17 5" stroke-width=".7"/><path d="M0 0 L-13 12" stroke-width=".7"/>
+        <path d="M0 0 L-6 16" stroke-width=".7"/><path d="M0 0 L4 16" stroke-width=".7"/>
+        <path d="M0 0 L10 13" stroke-width=".7"/><path d="M0 0 L15 8" stroke-width=".7"/>
+      </g>
+    </g>
+    <!-- 峰顶树丛：不规则小墨团 -->
+    <g id="crag-tuft" fill="#333E46">
+      <ellipse cx="0" cy="0" rx="9" ry="5" transform="rotate(-14)"/>
+      <ellipse cx="10" cy="-4" rx="7" ry="4" transform="rotate(8)"/>
+      <ellipse cx="-9" cy="-2" rx="6" ry="3.6" transform="rotate(-30)"/>
+      <ellipse cx="4" cy="-8" rx="5" ry="3" transform="rotate(-6)"/>
+    </g>
+  </defs>
+
+  <!-- ===== 最远：左侧低平远山 ===== -->
+  <g filter="url(#inkFar)">
+    <path fill="url(#gFar)" opacity=".5" d="M-40 332 L60 300 Q120 278 170 296 L250 318 Q300 330 360 322 L430 310 L430 420 L-40 420 Z"/>
+  </g>
+
+  <!-- ===== 中景：不对称双峰 ===== -->
+  <g filter="url(#inkMid)">
+    <path fill="url(#gMid)" opacity=".62" d="M548 344 Q586 268 622 240 Q640 226 654 238 Q662 248 674 246 Q718 288 776 322 L820 342 L820 430 L548 430 Z"/>
+    <path fill="url(#gFar)" opacity=".85" d="M756 334 Q812 250 862 214 Q884 198 900 214 Q906 224 920 224 Q968 274 1034 314 L1072 330 L1072 430 L756 430 Z"/>
+  </g>
+  <!-- 中景山的皴笔（只留山体上半段，不入雾） -->
+  <g stroke="#5A6B77" fill="none" stroke-linecap="round" filter="url(#inkSoft)" opacity=".16">
+    <path d="M634 258 Q630 282 638 302" stroke-width="2"/>
+    <path d="M652 250 Q658 278 654 300" stroke-width="1.5"/>
+    <path d="M878 232 Q872 262 880 288" stroke-width="2"/>
+    <path d="M898 228 Q906 262 902 292" stroke-width="1.5"/>
+  </g>
+
+  <!-- ===== 近景：右侧石峰群（不规则棱线） ===== -->
+  <g filter="url(#inkNear)">
+    <!-- 主峰：带肩与缺口 -->
+    <path fill="url(#gNear)" d="M1246 118 Q1258 96 1276 100 L1284 108 Q1296 100 1304 112 Q1312 128 1306 150 L1314 172 Q1326 178 1322 200 L1312 232 Q1322 252 1316 282 L1322 318 Q1326 352 1312 378 L1272 390 Q1250 380 1248 350 L1242 300 Q1234 268 1244 238 L1238 196 Q1234 152 1246 118 Z"/>
+    <!-- 次峰 -->
+    <path fill="url(#gNear)" opacity=".82" transform="translate(0,16)" d="M1392 170 Q1400 148 1418 152 L1428 162 Q1440 158 1444 174 Q1450 192 1444 214 L1452 244 Q1458 282 1450 314 L1442 360 Q1420 374 1402 362 L1392 316 Q1384 276 1392 240 L1388 204 Q1386 184 1392 170 Z"/>
+    <!-- 峰间矮丘 -->
+    <path fill="url(#gMid)" opacity=".9" d="M1306 306 Q1334 266 1364 278 Q1388 290 1394 330 L1398 372 L1314 380 Z"/>
+    <!-- 最右残峰 -->
+    <path fill="url(#gNear)" opacity=".62" d="M1508 214 Q1520 194 1538 200 L1554 214 Q1566 212 1570 228 L1600 252 L1600 400 L1512 386 Q1498 340 1504 290 Z"/>
+  </g>
+  <!-- 峰顶树丛 -->
+  <g filter="url(#tuft)" opacity=".85" fill="#232D33">
+    <use href="#crag-tuft" transform="translate(1274 98) scale(1.25)"/>
+    <use href="#crag-tuft" transform="translate(1250 116) scale(.85) rotate(-10)"/>
+    <use href="#crag-tuft" transform="translate(1418 168) scale(1)"/>
+    <use href="#crag-tuft" transform="translate(1536 200) scale(.85) rotate(6)"/>
+  </g>
+  <!-- 石峰干笔竖皴 + 左缘侧影 -->
+  <g stroke="#333E46" fill="none" stroke-linecap="round" filter="url(#inkSoft)" opacity=".32">
+    <path d="M1262 140 Q1256 220 1266 300" stroke-width="2.6"/>
+    <path d="M1286 128 Q1292 220 1284 330" stroke-width="1.7"/>
+    <path d="M1300 160 Q1306 230 1300 290" stroke-width="1.2"/>
+    <path d="M1410 206 Q1404 270 1414 340" stroke-width="2"/>
+    <path d="M1430 196 Q1436 260 1430 330" stroke-width="1.3"/>
+  </g>
+  <g stroke="#2A333A" fill="none" stroke-linecap="round" filter="url(#inkSoft)" opacity=".22">
+    <path d="M1248 130 Q1240 220 1250 330" stroke-width="3.4"/>
+    <path d="M1394 196 Q1386 270 1396 350" stroke-width="2.8"/>
+  </g>
+
+  <!-- ===== 亭：左侧中景峰腰一点人间（连脊线锚地） ===== -->
+  <g filter="url(#inkSoft)" opacity=".5" stroke="#39434C" fill="none" stroke-width="1.5" stroke-linecap="round">
+    <path d="M598 260 Q610 250 622 260"/>
+    <path d="M594 264 L626 264"/>
+    <path d="M601 264 L601 276 M619 264 L619 276"/>
+    <path d="M584 277 Q610 273 638 278"/>
+  </g>
+
+  <!-- ===== 雾带 ===== -->
+  <rect x="-40" y="270" width="1700" height="190" fill="url(#gMistH)"/>
+  <ellipse cx="1080" cy="335" rx="330" ry="80" fill="url(#gMistR)" filter="url(#mistBlur)"/>
+  <ellipse cx="520" cy="360" rx="380" ry="90" fill="url(#gMistR)" filter="url(#mistBlur)" opacity=".9"/>
+  <ellipse cx="270" cy="120" rx="480" ry="200" fill="url(#gMistR)" filter="url(#mistBlur)" opacity=".75"/>
+
+  <!-- ===== 水面：淡墨横皴 ===== -->
+  <g stroke="#6E8291" fill="none" stroke-linecap="round">
+    <path d="M620 448 L804 446" stroke-width="1.8" opacity=".3"/>
+    <path d="M560 470 L730 469" stroke-width="1.5" opacity=".22"/>
+    <path d="M840 466 L1020 464" stroke-width="1.6" opacity=".26"/>
+    <path d="M1150 452 L1330 450" stroke-width="1.7" opacity=".28"/>
+    <path d="M960 500 L1120 499" stroke-width="1.4" opacity=".18"/>
+    <path d="M420 500 L560 499" stroke-width="1.4" opacity=".15"/>
+    <path d="M660 520 L790 519" stroke-width="1.3" opacity=".12"/>
+  </g>
+
+  <!-- ===== 近岸：左下角一线浅滩 + 苇草两三笔 ===== -->
+  <g filter="url(#inkMid)">
+    <path fill="#54646E" opacity=".2" d="M-40 536 Q80 524 190 532 Q260 537 330 534 L360 540 L360 560 L-40 560 Z"/>
+  </g>
+  <g stroke="#39434C" fill="none" stroke-linecap="round" filter="url(#inkSoft)" opacity=".32">
+    <path d="M104 534 Q108 508 102 492" stroke-width="1.2"/>
+    <path d="M116 536 Q124 512 122 498" stroke-width="1"/>
+    <path d="M130 534 Q132 516 140 504" stroke-width=".9"/>
+  </g>
+
+  <!-- ===== 孤舟（双帆） ===== -->
+  <g filter="url(#inkSoft)">
+    <!-- 大帆：淡墨帆面 + 弧线帆骨 -->
+    <path d="M712 340 Q726 344 736 352 L738 392 Q724 396 712 392 Z" fill="#54646E" opacity=".55"/>
+    <path d="M712 340 L712 398" stroke="#20262B" stroke-width="1.6" opacity=".85"/>
+    <path d="M714 352 Q726 355 736 362 M714 366 Q726 369 737 376 M714 380 Q724 383 737 388" stroke="#39434C" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- 小帆 -->
+    <path d="M690 358 Q698 361 704 367 L705 394 Q696 397 690 394 Z" fill="#5A6B77" opacity=".45"/>
+    <path d="M690 358 L690 398" stroke="#20262B" stroke-width="1.3" opacity=".8"/>
+    <!-- 船体：一笔扁舟 -->
+    <path d="M668 400 Q706 407 748 400 Q742 412 722 414 L692 414 Q676 410 668 400 Z" fill="#20262B" opacity=".92"/>
+    <!-- 艄公一点 -->
+    <circle cx="742" cy="396" r="2.6" fill="#20262B" opacity=".85"/>
+    <path d="M744 398 L750 388" stroke="#20262B" stroke-width="1" opacity=".7"/>
+    <!-- 倒影 -->
+    <g opacity=".12" transform="translate(0,832) scale(1,-1)">
+      <path d="M712 340 L712 398" stroke="#20262B" stroke-width="1.6"/>
+      <path d="M668 400 Q706 407 748 400 Q742 412 722 414 L692 414 Q676 410 668 400 Z" fill="#20262B"/>
+    </g>
+  </g>
+
+  <!-- ===== 雁阵 ===== -->
+  <g opacity=".8">
+    <use href="#bird" transform="translate(560 150) scale(1.05)"/>
+    <use href="#bird" transform="translate(608 132) scale(.9)"/>
+    <use href="#bird" transform="translate(652 148) scale(1.1)"/>
+    <use href="#bird" transform="translate(700 126) scale(.8)"/>
+    <use href="#bird" transform="translate(742 140) scale(.95)"/>
+    <use href="#bird" transform="translate(508 168) scale(.75)"/>
+  </g>
+
+  <!-- ===== 垂松：右上角入画，针叶盘全部长在枝节上 ===== -->
+  <g>
+    <!-- 主枝：一笔渐细 -->
+    <path d="M1600 24 Q1548 28 1502 40 Q1458 52 1428 72" fill="none" stroke="#20262B" stroke-width="5" stroke-linecap="round" filter="url(#inkSoft)"/>
+    <path d="M1428 72 Q1404 88 1392 106" fill="none" stroke="#20262B" stroke-width="2.6" stroke-linecap="round" filter="url(#inkSoft)"/>
+    <!-- 分枝 -->
+    <path d="M1506 40 Q1490 50 1482 64" fill="none" stroke="#20262B" stroke-width="2.2" stroke-linecap="round" filter="url(#inkSoft)"/>
+    <path d="M1556 30 Q1546 38 1542 50" fill="none" stroke="#20262B" stroke-width="2" stroke-linecap="round" filter="url(#inkSoft)"/>
+    <!-- 针叶盘：贴着枝节层叠 -->
+    <g filter="url(#inkSoft)">
+      <use href="#pad" transform="translate(1392 108) scale(1.15)"/>
+      <use href="#pad" transform="translate(1404 94) scale(.9) rotate(-8)"/>
+      <use href="#pad" transform="translate(1428 74) scale(1.2) rotate(5)"/>
+      <use href="#pad" transform="translate(1450 62) scale(.95) rotate(-6)"/>
+      <use href="#pad" transform="translate(1482 66) scale(1.1)"/>
+      <use href="#pad" transform="translate(1502 42) scale(1) rotate(8)"/>
+      <use href="#pad" transform="translate(1542 52) scale(.9) rotate(-5)"/>
+      <use href="#pad" transform="translate(1556 32) scale(1.05)"/>
+      <use href="#pad" transform="translate(1592 26) scale(.95) rotate(6)"/>
+    </g>
+  </g>
+</svg>

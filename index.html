@@ -19,9 +19,9 @@
       </a>
       <nav class="nav">
         <a href="index.html" class="active">首页</a>
-        <a href="math.html">数学</a>
-        <a href="years.html">考题练习</a>
-        <a href="stats.html">统计</a>
+        <div class="ndd"><button class="ndd-t" type="button">科目 ▾</button><div class="ndd-p"><a href="math.html">🧮 数学</a><a href="chinese.html">📖 语文</a><a href="english.html">🔤 英语</a></div></div>
+        <div class="ndd"><button class="ndd-t" type="button">考题练习 ▾</button><div class="ndd-p"><a href="years.html?subject=math">🧮 数学</a><a href="years.html?subject=chinese">📖 语文</a><a href="years.html?subject=english">🔤 英语</a></div></div>
+        <div class="ndd"><button class="ndd-t" type="button">统计 ▾</button><div class="ndd-p"><a href="stats.html?subject=math">🧮 数学</a><a href="stats.html?subject=chinese">📖 语文</a><a href="stats.html?subject=english">🔤 英语</a></div></div>
       </nav>
       <form class="search-form" action="search.html">
         <input type="search" name="q" placeholder="搜题型 / 方法 / 考点">
@@ -44,11 +44,12 @@
         <input type="search" name="q" placeholder="搜索题型、方法、考点，如：导数 / 离心率 / 错位相减">
         <button class="btn btn-primary" type="submit">搜索</button>
       </form>
-      <div class="hot-chips reveal d4" id="hot-chips"></div>
       <div class="hero-stats reveal d4">
-        <div class="hero-stat"><div class="n" id="hs-papers" data-count="0">0</div><div class="l">套真题在库 · <span id="hs-full">—</span></div></div>
-        <div class="hero-stat"><div class="n" id="hs-questions" data-count="0">0</div><div class="l">道题逐题标注解法</div></div>
-        <div class="hero-stat"><div class="n" id="hs-types" data-count="0">0</div><div class="l">种题型归并统计</div></div>
+        <div class="hero-stat"><div class="n" id="hs-papers" data-count="0">0</div><div class="l">套真题在库</div></div>
+        <div class="hero-stat"><div class="n" id="hs-questions" data-count="0">0</div><div class="l">题逐题解析<span class="hs-tag t-math">数学</span></div></div>
+        <div class="hero-stat"><div class="n" id="hs-types" data-count="0">0</div><div class="l">种题型统计<span class="hs-tag t-math">数学</span></div></div>
+        <div class="hero-stat"><div class="n" id="hs-dict" data-count="0">0</div><div class="l">篇默写考情<span class="hs-tag t-yw">语文</span></div></div>
+        <div class="hero-stat"><div class="n" id="hs-essay" data-count="0">0</div><div class="l">年作文题库<span class="hs-tag t-yw">语文</span></div></div>
       </div>
     </div>
   </section>
@@ -68,8 +69,8 @@
         <a class="tile tile-chinese reveal d1" href="chinese.html">
           <span class="tile-icon">📖</span>
           <span class="tile-body">
-            <b>语文 <span class="tag-beta">整理中</span></b>
-            <small>七大板块复习框架已建好 · 真题录入中</small>
+            <b>语文 <span class="tag-live">已上线</span></b>
+            <small>已拆解 <span id="cnt-chinese">–</span> 套真题 · 默写考情 · 作文题库与模板</small>
           </span>
           <span class="tile-arrow">→</span>
         </a>
