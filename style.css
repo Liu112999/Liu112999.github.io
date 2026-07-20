@@ -11,7 +11,8 @@
   --surface-2: #F4F8FC;      /* 次级底（题干/解析底） */
   --ink: #101828;            /* 主文字 */
   --ink-2: #414E68;          /* 次文字 */
-  --ink-3: #8794AB;          /* 弱文字 */
+  --ink-3: #626F86;          /* 弱文字（原 #8794AB 白底对比度仅 3.06 不达 AA；
+                                 它正好用在题号、分值、年份这些最需要扫读的元数据上） */
   --line: #E4EAF4;           /* 边线 */
   --line-2: #D3DDEC;
 
@@ -21,6 +22,8 @@
   --brand-soft: #E9F1FE;
   --brand-line: #C7DCFB;     /* 品牌色浅边框 */
   --brand-grad: linear-gradient(115deg, #2563EB 0%, #0EA5E9 55%, #14B8A6 100%);
+  /* 浅色渐变底（答案框、PDF 按钮）：必须走变量，否则分科主题换肤时会漏出默认蓝 */
+  --grad-soft: linear-gradient(120deg, #E9F1FE, #E6F7F3);
   --hero-bg: linear-gradient(180deg, #EDF5FF 0%, #EFFAF6 62%, #F6F9FD 100%);
   --on-dark: var(--ink);             /* 旧深色页头令牌：现统一指向浅色墨字 */
   --on-dark-soft: var(--ink-2);
@@ -29,10 +32,11 @@
   --mark: #E11D48;           /* 红笔重点 */
   --hi: #2563EB;  --hi-soft: #E9F1FE;    /* 优先级：高 */
   --mid: #B45309; --mid-soft: #FBF0DE;   /* 优先级：中 */
-  --low: #64748B; --low-soft: #EEF1F6;   /* 优先级：低 */
-  --easy: #0E9F6E;   --easy-soft: #E5F6EF;   /* 难度：易 */
-  --medium: #D97706; --medium-soft: #FBF0DD; /* 难度：中 */
-  --hard: #DC2626;   --hard-soft: #FDEAEA;   /* 难度：难 */
+  --low: #5C6A80; --low-soft: #EEF1F6;   /* 优先级：低（压深以达 AA） */
+  /* 徽章文字压深一档：原 easy 3.02 / medium 2.82，在各自 -soft 底上都不达 AA */
+  --easy: #06724D;   --easy-soft: #E5F6EF;   /* 难度：易 */
+  --medium: #9A5303; --medium-soft: #FBF0DD; /* 难度：中 */
+  --hard: #C81E1E;   --hard-soft: #FDEAEA;   /* 难度：难 */
   --purple: #0E7490; --purple-soft: #E0F4F9; /* 模拟卷 / beta（青色系，不再用紫） */
 
   /* 图表系列色（经色觉安全校验的固定顺序，不要打乱） */
@@ -70,8 +74,11 @@ a { color: var(--brand); text-decoration: none; transition: color .25s; }
 a:hover { color: var(--brand-2); }
 img { max-width: 100%; }
 ::selection { background: rgba(37, 99, 235, .16); color: var(--ink); }
-a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
-  outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px;
+/* 不要在这里写 border-radius：它改的是元素自身圆角，会把 .tile 从 20px 压成 6px。
+   outline 本来就跟随元素圆角。 */
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible,
+[data-toggle]:focus-visible, tr.clickable:focus-visible {
+  outline: 2px solid var(--brand); outline-offset: 2px;
 }
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -359,6 +366,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .tile-math .tile-icon    { background: #E8F1FE; }
 .tile-chinese .tile-icon { background: #EFF2F2; }
 .tile-english .tile-icon { background: #E6F7F1; }
+.tile-must .tile-icon    { background: #E3F6EC; }
 .tile-practice .tile-icon{ background: #FFF3DC; }
 .tile-stats .tile-icon   { background: #E7F7FB; }
 .tile-search .tile-icon  { background: #EDF2F8; }
@@ -660,7 +668,10 @@ tbody tr.clickable:hover { background: var(--brand-soft); }
 .q-empty { font-size: 12.5px; color: var(--ink-3); }
 
 /* 统计页条形图（更宽数字列） */
-#bars-subtopics .bar-row, #bars-methods .bar-row { grid-template-columns: 128px 1fr 210px; }
+#bars-subtopics .bar-row { grid-template-columns: 128px 1fr 210px; }
+/* 方法名归并后变长（如「集合运算（解不等式后取交并）」），标签列要宽；
+   右侧只放「8 次 · 7%」，不需要 210px */
+#bars-methods .bar-row { grid-template-columns: 200px 1fr 96px; }
 #bars-topics .bar-label a, #bars-subtopics .bar-label a, #bars-methods .bar-label a { color: inherit; border-bottom: 1px dashed var(--line-2); }
 #bars-topics .bar-label a:hover, #bars-subtopics .bar-label a:hover, #bars-methods .bar-label a:hover { color: var(--brand); border-bottom-color: var(--brand); }
 
@@ -721,7 +732,7 @@ tbody tr.clickable:hover { background: var(--brand-soft); }
 
 .sol-ans {
   margin: 16px 22px 4px; padding: 15px 18px;
-  background: linear-gradient(120deg, #E9F1FE, #E6F7F3);
+  background: var(--grad-soft);
   border: 1.5px solid var(--brand-line); border-radius: 14px;
   font-size: 16px; line-height: 1.95; color: var(--ink); font-weight: 600;
   display: flex; gap: 12px; align-items: flex-start;
@@ -872,12 +883,101 @@ details.step-why .why-body { overflow-x: auto; }
 .pdf-btn {
   display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 10px 18px; border-radius: 12px;
-  background: linear-gradient(120deg, #E9F1FE, #E6F7F3);
+  background: var(--grad-soft);
   border: 1.5px solid var(--brand-line);
   font-size: 13.5px; font-weight: 800; color: var(--brand);
   transition: all .3s var(--ease);
 }
 .pdf-btn small { font-size: 11px; font-weight: 500; color: var(--ink-3); }
+/* ===== 英语词表（带释义） ===== */
+.ew-row .rank-name { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; white-space: normal; }
+.ew-cn { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+.ew-cn i { margin-right: 5px; color: var(--brand); font-size: 12px; }
+.ew-tip { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+#en-sub-main .ew-row { grid-template-columns: minmax(200px, 1.6fr) 1fr 62px; }
+/* 折叠组：长列表一律收起，一次只面对十几条 */
+details.fold-item > summary { padding: 15px 20px; }
+details.fold-item > summary b { font-size: 15.5px; }
+details.fold-item .rc-body { padding: 6px 18px 16px; }
+@media (max-width: 620px) {
+  #en-sub-main .ew-row { grid-template-columns: minmax(120px, 1.5fr) 1fr 50px; }
+  .ew-row .rank-name { gap: 6px; }
+}
+
+/* ===== 英语语篇块页 ===== */
+.en-gist {
+  margin-top: 20px; padding: 13px 18px; display: flex; gap: 12px; align-items: baseline;
+  font-size: 14.5px; line-height: 1.9; color: var(--ink);
+  background: var(--brand-soft); border-radius: 12px;
+}
+.en-gist > b { flex: none; font-size: 13px; color: var(--brand); }
+.en-passage {
+  margin-top: 18px; padding: 20px 24px;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px;
+  font-size: 15.5px; line-height: 2.05; color: var(--ink);
+}
+.en-passage p { margin: 0 0 14px; }
+.en-passage p:last-child { margin-bottom: 0; }
+.en-q { font-family: inherit; }
+.en-options { margin-top: 16px; padding: 16px 20px; background: var(--surface-2); border-radius: 12px; }
+.en-options > b { display: block; font-size: 13.5px; color: var(--brand); margin-bottom: 8px; }
+.en-opt { font-size: 14.5px; line-height: 1.95; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.en-opt:last-child { border-bottom: none; }
+.en-locate {
+  margin: 12px 12px 0; padding: 11px 16px; display: flex; gap: 10px;
+  font-size: 14px; line-height: 1.9; background: var(--surface-2); border-radius: 10px;
+}
+.en-locate > b { flex: none; font-size: 13px; color: var(--ink-2); }
+/* 生词：点一下看释义 */
+.gw {
+  position: relative; cursor: pointer;
+  border-bottom: 1.5px dotted var(--brand); color: inherit;
+}
+.gw:hover { background: var(--brand-soft); }
+.gw-pop {
+  display: none; position: absolute; left: 0; top: calc(100% + 7px); z-index: 60;
+  min-width: 150px; max-width: 300px; padding: 9px 13px;
+  background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px;
+  box-shadow: var(--shadow-lg); font-size: 13.5px; line-height: 1.75; font-weight: 500;
+  color: var(--ink); white-space: normal;
+}
+.gw.open .gw-pop { display: block; }
+.gw-pop b { display: inline-block; margin-right: 6px; color: var(--brand); font-style: italic; }
+.gw-pop i { display: block; margin-top: 4px; font-size: 12.5px; color: var(--ink-3); font-style: normal; }
+
+/* 练习记忆：我练过了 */
+.done-bar { margin-top: 22px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.done-bar small { color: var(--ink-3); font-size: 12px; }
+.done-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 20px; border-radius: 999px; cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--line-2);
+  color: var(--ink-2); font-size: 14px; font-weight: 700; font-family: inherit;
+  transition: all .25s var(--ease);
+}
+.done-btn:hover { border-color: var(--brand); color: var(--brand); }
+.done-btn.on { background: var(--easy-soft); border-color: var(--easy); color: var(--easy); }
+.pk-done {
+  flex-shrink: 0; font-size: 12.5px; font-weight: 700;
+  color: var(--easy); background: var(--easy-soft);
+  border-radius: 99px; padding: 3px 12px;
+}
+.pick.picked { border-color: var(--easy); background: var(--easy-soft); }
+.paper-nav a.done { border-color: var(--easy); color: var(--easy); }
+
+/* 归并方法族之下，这道题的具体走法（原始描述，不丢信息） */
+.method-detail {
+  margin-top: 9px; font-size: 13px; line-height: 1.9; color: var(--ink-2);
+  padding: 8px 13px; background: var(--surface-2); border-radius: 9px;
+}
+/* 没有 PDF 的年份：留一块弱化占位，别让卡片看起来"掉了东西" */
+.pdf-none {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 18px; border-radius: 12px;
+  background: var(--surface-2); border: 1px dashed var(--line-2);
+  font-size: 13.5px; font-weight: 700; color: var(--ink-3);
+}
+.pdf-none small { font-size: 11px; font-weight: 500; }
 .pdf-btn:hover { transform: translateY(-2px); border-color: var(--brand); box-shadow: var(--glow); color: var(--brand); }
 @media (max-width: 620px) { .paper-pdfs { width: 100%; } .pdf-btn { flex: 1; } }
 
@@ -947,6 +1047,12 @@ details.step-why .why-body { overflow-x: auto; }
   .tile-grid { grid-template-columns: repeat(2, 1fr); }
   .flow-strip { grid-template-columns: repeat(2, 1fr); }
   .pri-grid { grid-template-columns: repeat(2, 1fr); }
+  /* .grid-2 的降级必须和下面 bar-row 的窄变体同时提到 900px：
+     否则 621–900px 这段里两列布局配桌面版 bar-row(128+210+gap>350)，
+     中间 1fr 轨道会被挤成 0px —— 柱状图一根柱子都看不见（iPad 竖屏正中招） */
+  .grid-2 { grid-template-columns: 1fr; }
+  #bars-subtopics .bar-row { grid-template-columns: 112px 1fr 168px; }
+  #bars-methods .bar-row { grid-template-columns: 150px 1fr 84px; }
 }
 @media (max-width: 620px) {
   body { font-size: 15px; }
@@ -956,7 +1062,8 @@ details.step-why .why-body { overflow-x: auto; }
   .section { padding: 36px 0; }
   .bar-row { grid-template-columns: 96px 1fr 54px; gap: 8px; }
   .bar-row .bar-label { font-size: 12px; }
-  #bars-subtopics .bar-row, #bars-methods .bar-row { grid-template-columns: 96px 1fr 150px; }
+  #bars-subtopics .bar-row { grid-template-columns: 96px 1fr 150px; }
+  #bars-methods .bar-row { grid-template-columns: 118px 1fr 72px; }
   .nav { margin-left: 0; }
   .nav a { padding: 5px 9px; font-size: 13px; }
   .search-form { width: 100%; }
@@ -993,9 +1100,11 @@ details.step-why .why-body { overflow-x: auto; }
 
 .pick-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 26px 0 12px; }
 .pick-head h3 { font-size: 18px; font-weight: 800; font-family: var(--font-num); }
-.pick-head .pk-score {
+/* 不能限定在 .pick-head 下——实际渲染位置是 .tree-row.t1-row，限定后整条规则失效 */
+.pk-score {
   font-size: 12.5px; font-weight: 700; color: var(--easy);
   background: var(--easy-soft); border-radius: 99px; padding: 3px 13px;
+  flex-shrink: 0;
 }
 .pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .pick {
@@ -1023,7 +1132,10 @@ details.step-why .why-body { overflow-x: auto; }
   color: var(--ink-2); font-size: 14px; background: none; border: none;
   cursor: pointer; font-family: inherit; font-weight: 500; transition: all .25s var(--ease);
 }
-.nav .ndd-t:hover, .ndd.open .ndd-t { color: var(--brand); background: var(--brand-soft); }
+.ndd.open .ndd-t { color: var(--brand); background: var(--brand-soft); }
+@media (hover: hover) and (pointer: fine) {   /* 同上：触屏别让按钮永久停在高亮态 */
+  .nav .ndd-t:hover { color: var(--brand); background: var(--brand-soft); }
+}
 .nav .ndd-t.active { color: var(--brand); background: var(--brand-soft); font-weight: 700; }
 .ndd-p {
   position: absolute; top: calc(100% + 8px); left: 50%;
@@ -1033,7 +1145,12 @@ details.step-why .why-body { overflow-x: auto; }
   box-shadow: var(--shadow-lg); padding: 7px; min-width: 136px;
   opacity: 0; pointer-events: none; transition: all .22s var(--ease); z-index: 400;
 }
-.ndd.open .ndd-p, .ndd:hover .ndd-p { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.ndd.open .ndd-p { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+/* hover 展开只给真正有鼠标的设备：触屏的「粘滞 hover」会让面板第二次点击后关不掉，
+   残留的面板还带 pointer-events:auto，会吃掉点击（实测点搜索框被误导航到数学页） */
+@media (hover: hover) and (pointer: fine) {
+  .ndd:hover .ndd-p { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+}
 .ndd-p a { padding: 8px 14px; border-radius: 9px; font-size: 13.5px; color: var(--ink); white-space: nowrap; }
 .ndd-p a:hover { background: var(--brand-soft); color: var(--brand); }
 
@@ -1051,11 +1168,12 @@ details.step-why .why-body { overflow-x: auto; }
    唯一异色为山影青 #6E8291；朱磦 #9E4038 仅作印章式极小强调（--mark）。 */
 body.sub-chinese {
   --bg: #FBFCFB; --surface: #FDFEFD; --surface-2: #F4F6F6;
-  --ink: #20262B; --ink-2: #39434C; --ink-3: #7C8890;
+  --ink: #20262B; --ink-2: #39434C; --ink-3: #67737C;   /* 弱墨压深一档以达 AA */
   --line: #E4E8E8; --line-2: #CCD4D6;
   --brand: #39434C; --brand-2: #20262B; --brand-3: #6E8291;
   --brand-soft: #F0F3F3; --brand-line: #D8DEDF;
   --brand-grad: linear-gradient(115deg, #20262B, #4A5761 58%, #6E8291);
+  --grad-soft: linear-gradient(120deg, #F0F3F3, #EFF3F4);   /* 宣纸墨境：答案框也是纸色，不许出现蓝 */
   --hero-bg: #FBFCFB;
   --mark: #9E4038;
   --hi: #20262B;  --hi-soft: #E9ECEC;      /* 优先级=墨的浓淡：越重要墨越浓 */
@@ -1106,14 +1224,97 @@ body.sub-chinese .section-title::before {
   .page-head.ink-hero { padding: 40px 0 64px; }
 }
 
+/* ---- 整页水墨氛围：纸纹 + 角落墨晕 + 页脚远山（透明度全部压到极低，绝不影响文字） ---- */
+/* ① 宣纸纸纹：极细噪点，肉眼只感到"纸有肌理"，看不出颗粒 */
+body.sub-chinese {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .21 0 0 0 0 .23 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+/* ② 角落墨晕：右上一团、左下一团，只染留白处（卡片是实底纸色，压不到字） */
+body.sub-chinese::before {
+  content: ""; position: fixed; top: -260px; right: -240px; width: 720px; height: 680px;
+  background: radial-gradient(closest-side, rgba(110, 130, 145, .07), rgba(110, 130, 145, .03) 55%, transparent 76%);
+  pointer-events: none; z-index: 0;
+}
+body.sub-chinese::after {
+  content: ""; position: fixed; left: -300px; bottom: -320px; width: 780px; height: 720px;
+  background: radial-gradient(closest-side, rgba(90, 107, 119, .055), transparent 74%);
+  pointer-events: none; z-index: 0;
+}
+/* ③ 页脚远山一线：一抹极淡的山影把页面收进画里 */
+body.sub-chinese .site-footer { overflow: visible; }
+body.sub-chinese .site-footer::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -72px; height: 72px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 80' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='2.6'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%236E8291' opacity='.10' d='M0 80 L0 58 Q150 32 310 52 Q430 66 570 56 Q710 44 840 58 Q990 72 1140 60 Q1310 46 1450 60 L1600 50 L1600 80 Z'/%3E%3Cpath filter='url(%23b)' fill='%235A6B77' opacity='.07' d='M180 80 Q350 50 520 64 Q660 74 800 62 Q950 50 1120 66 Q1280 78 1440 68 L1600 60 L1600 80 L180 80 Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
+/* ④ 页头画卷底缘化进正文：一段纸色渐变，避免横带式的生硬截断 */
+body.sub-chinese .page-head::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 34px;
+  background: linear-gradient(180deg, rgba(251, 252, 251, 0), #FBFCFB);
+  pointer-events: none;
+}
+
+/* ---- 语文间距打磨（默写页 recite 保持原样，不在选择器内） ---- */
+body[data-sec="classics"] .rc-body, body[data-sec="essay"] .rc-body { padding: 10px 22px 22px; }
+body[data-sec="classics"] details.rc-item, body[data-sec="essay"] details.rc-item { margin-top: 12px; }
+body[data-sec="classics"] details.rc-item summary, body[data-sec="essay"] details.rc-item summary { padding: 15px 20px; gap: 12px; }
+body[data-sec="essay"] .genre-item { margin-top: 14px; }
+body[data-sec="essay"] .rc-body .steps { margin-top: 14px; }
+body[data-sec="essay"] .sol-step { padding: 6px 0 26px 40px; }
+body.sub-chinese .card { padding: 26px 28px; }
+body.sub-chinese .cn-row { padding: 12px 6px; gap: 14px; }
+body.sub-chinese .q-detail-grid { gap: 12px 18px; margin-top: 22px; }
+body.sub-chinese .cn-part { margin-top: 22px; padding: 20px 24px 18px; }
+body.sub-chinese .cn-intro { margin-top: 22px; padding: 18px 24px; }
+
+/* =====================================================================
+   打印样式：家长和学生常把题目打出来做。
+   原则：只留内容，去掉一切导航/装饰/交互提示；折叠内容全部展开。
+   ===================================================================== */
+@media print {
+  /* 去掉一切非内容元素 */
+  .site-header, .site-footer, .nav, .search-form, .subject-tabs, .q-pager,
+  .paper-nav, .done-bar, .btn, .tile-arrow, .hero-orb, .ink-scroll,
+  .sg-box, .crumbs, .tree-all, .pdf-btn, .pdf-none { display: none !important; }
+  body::before, body::after, .page-head::after, .site-footer::after { display: none !important; }
+
+  body { background: #fff !important; font-size: 11.5pt; color: #000; }
+  .container { max-width: none; padding: 0; }
+  .section { padding: 0 0 10pt; }
+  .card, .cn-part, .q-field, .stem-block {
+    box-shadow: none !important; border: 1px solid #bbb !important;
+    background: #fff !important; break-inside: avoid;
+  }
+  /* 折叠内容一律展开：打印出来不能是一堆收起来的标题 */
+  details > summary { display: none !important; }
+  details > *:not(summary) { display: block !important; }
+  .tree-children.hidden { display: block !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+
+  /* 答案与解析保持可读的黑白层次 */
+  .sol-ans { background: #f2f2f2 !important; border: 1px solid #999 !important; }
+  .sol-ans > b { background: #333 !important; color: #fff !important; box-shadow: none !important; }
+  .cn-how, .g-demo, .method-detail { background: #f6f6f6 !important; }
+  a { color: #000 !important; text-decoration: none; }
+  h1, h2, h3, .cn-part, .sol-part { break-after: avoid; }
+  img, figure, table { break-inside: avoid; max-width: 100% !important; }
+  @page { margin: 14mm 12mm; }
+}
+
 /* ===== 分科主题：英语（淡草绿 · 西式清新） ===== */
 body.sub-english {
   --bg: #F6FAF5; --surface-2: #F2F8F0; --line: #E1EBDD; --line-2: #CFE0C9;
   --brand: #3E8E5A; --brand-2: #5E9E4A; --brand-3: #2F7D6D;
   --brand-soft: #EAF4E9; --brand-line: #CFE4CC;
   --brand-grad: linear-gradient(115deg, #3E8E5A, #6BA84F 55%, #2F7D6D);
+  --grad-soft: linear-gradient(120deg, #EAF4E9, #E8F5EE);   /* 淡草绿：答案框跟着绿系走 */
+  --glow: 0 8px 26px rgba(62, 142, 90, .20);
 }
 body.sub-english .hero-orb { opacity: .45; }
+/* 英语词表：等宽感西文 + 双列布局 */
+.en-word { font-weight: 700; letter-spacing: .01em; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.en-word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 36px; }
+@media (max-width: 900px) { .en-word-grid { grid-template-columns: 1fr; } }
 
 /* ===== 语文背诵频率页组件 ===== */
 .k-quote { font-weight: 600; color: var(--brand); }
@@ -1141,6 +1342,23 @@ body.sub-english .hero-orb { opacity: .45; }
   background: var(--surface-2); border-left: 3px solid var(--brand-line); border-radius: 0 10px 10px 0;
 }
 
+/* 文体工具箱（作文专区：按文体折叠） */
+.genre-item summary b { font-size: 15.5px; }
+.genre-item .rc-body { padding-top: 12px; }
+.g-bridge, .g-open {
+  margin-top: 18px; padding: 14px 17px; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--surface-2);
+}
+.g-bridge > b, .g-open > b { display: block; font-size: 14.5px; margin-bottom: 8px; }
+.g-bridge p { font-size: 13.5px; line-height: 2; color: var(--ink-2); }
+.g-open-note { font-size: 13px; color: var(--ink-3); margin-bottom: 10px; }
+.g-open .steps { margin-top: 4px; }
+.g-sub { margin-top: 14px; padding: 13px 16px; border: 1px dashed var(--line-2); border-radius: 12px; }
+.g-sub-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.g-sub-head b { font-size: 14.5px; }
+.g-sub-fmt { font-size: 13.5px; line-height: 2; color: var(--ink-2); }
+.g-note { margin-top: 12px; font-size: 13px; color: var(--ink-3); line-height: 1.9; }
+
 /* ===== 语文子页面组件（瘦身版） ===== */
 .cn-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px dashed var(--line); font-size: 14px; flex-wrap: wrap; }
 .cn-row:last-child { border-bottom: none; }
@@ -1164,8 +1382,63 @@ details.rc-item[open] summary::after { transform: rotate(90deg); }
   margin: 10px 0; padding: 11px 15px; font-size: 14.5px; line-height: 2; color: var(--ink);
   background: var(--brand-soft); border-left: 3px solid var(--brand); border-radius: 0 10px 10px 0;
 }
-.rc-text { white-space: pre-line; font-size: 14.5px; line-height: 2.1; color: var(--ink); margin-top: 8px; }
+/* 古文读本排版（文言原文/诗歌全文）：衬线楷体、大字、宽行距、材料分块、出处弱化 */
+.rc-text {
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", "AR PL KaitiM GB", "TW-Kai", serif;
+  font-size: 17px; line-height: 2.25; color: var(--ink);
+  margin-top: 10px; padding: 4px 6px 0;
+  max-width: 860px; margin-left: auto; margin-right: auto;  /* 读本行长：一行约50字，不通栏 */
+}
+.rc-text p { margin: 0 0 18px; text-indent: 2em; text-align: justify; }
+.cn-mat {
+  display: flex; align-items: center; gap: 14px;
+  font-weight: 700; font-size: 15px; letter-spacing: .3em; color: var(--ink-2);
+  margin: 26px 0 12px;
+}
+.cn-mat:first-child { margin-top: 8px; }
+.cn-mat::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-2), transparent); }
+.cn-cite { text-align: right; font-size: 13.5px; color: var(--ink-3); letter-spacing: .04em; margin: -8px 0 24px; }
+.rc-text .cn-cite:last-child { margin-bottom: 8px; }
+.cn-note-line {
+  font-size: 13.5px; color: var(--ink-3); line-height: 2;
+  margin-top: 16px; padding-top: 10px; border-top: 1px dashed var(--line);
+}
+.rc-poem { text-align: center; }
+.rc-poem .cn-poem-title { font-weight: 700; font-size: 18.5px; margin: 8px 0 2px; }
+.rc-poem .cn-poem-author { font-size: 14px; color: var(--ink-3); margin-bottom: 14px; }
+.rc-poem .cn-verse { margin: 3px 0; }
+.rc-poem .cn-note-line { text-align: left; }
 .rc-meta { font-size: 12.5px; color: var(--ink-3); }
+
+/* ===== 语文板块条目页（question.html：材料 → 题目 → 答案 → 怎么答） ===== */
+.cn-intro {
+  margin-top: 20px; padding: 16px 20px; font-size: 14.5px; line-height: 1.95; color: var(--ink-2);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px;
+}
+.cn-intro .cn-excerpt {
+  margin: 10px 0 4px; padding: 8px 16px; color: var(--ink); line-height: 2.05;
+  border-left: 3px solid var(--line-2);
+}
+.cn-src { display: block; margin-top: 6px; font-size: 12.5px; color: var(--ink-3); text-align: right; }
+.cn-part {
+  margin-top: 18px; padding: 18px 20px 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+}
+.cn-part-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cn-part-head b { font-size: 15.5px; }
+.cn-kind {
+  font-size: 12px; color: var(--ink-3); background: var(--surface-2);
+  border: 1px solid var(--line); padding: 2px 10px; border-radius: 999px;
+}
+.cn-q { font-size: 15px; line-height: 2; color: var(--ink); }
+.cn-q .opts { grid-template-columns: 1fr; gap: 4px 0; margin-top: 10px; }  /* 语文选项多为长句，单列 */
+.cn-sol { margin-top: 14px; }
+.cn-how {
+  margin: 12px 12px 14px; padding: 12px 16px; display: flex; gap: 10px;
+  font-size: 14.5px; line-height: 1.95; background: var(--brand-soft); border-radius: 10px;
+}
+.cn-how > b { flex: none; font-size: 13.5px; color: var(--brand); }
+.cn-how-c { flex: 1; min-width: 0; }
 .eg-eye { margin: 10px 0 8px; padding: 10px 14px; background: var(--brand-soft); border-left: 3px solid var(--brand); border-radius: 0 10px 10px 0; font-size: 14px; }
 .eg-angle { display: flex; gap: 9px; align-items: baseline; font-size: 14px; line-height: 1.95; margin-top: 5px; }
 .eg-angle .no2 { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }

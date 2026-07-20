@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#EDF5FF">
+  <meta name="theme-color" content="#F6FAF5">
   <title>英语 · 苏考图谱</title>
-  <meta name="description" content="江苏新高考英语：七大板块复习框架，真题逐题拆解录入中。">
+  <meta name="description" content="江苏新高考英语：五年真题词频、语法填空考点频率、阅读题型分布、写作固定模板——考什么背什么。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -32,49 +32,58 @@
   <section class="page-head">
     <div class="container">
       <div class="crumbs"><a href="index.html">首页</a> / 英语</div>
-      <h1>英语 <span class="badge badge-mock" style="vertical-align:6px">整理中</span></h1>
-      <p id="subject-stat-line" style="margin-top:6px;font-size:14px"></p>
+      <h1>英语 <span class="badge badge-paper" style="vertical-align:6px">已上线</span></h1>
+      <p class="lead" style="margin-top:8px">2021–2025 五套新高考Ⅰ卷<b class="grad">逐题拆完</b>——235 道题，每题都告诉你为什么这么选。四个入口，各管一件事。</p>
     </div>
   </section>
 
-  <section class="section" style="padding:28px 0 8px">
+  <!-- ===== 六大入口 ===== -->
+  <section class="section" style="padding:36px 0 10px">
     <div class="container">
-      <div class="notice-beta reveal">
-        ◐ 英语板块正在建设：下方是已经搭好的<b>七大板块复习框架</b>（板块、位置、分值、复习建议）。
-        真题逐题拆解完成后，高频题型、统计图表和题目档案会自动上线——只展示我们真实拥有的数据，不放示例题。
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 板块框架 ===== -->
-  <section class="section" style="padding:24px 0 8px">
-    <div class="container">
-      <div class="section-head reveal" style="margin-bottom:14px">
-        <h2 class="section-title">七大板块 · 复习框架</h2>
-        <p class="section-desc">每个板块的卷面位置、分值占比和复习策略，先按这个框架安排时间。</p>
-      </div>
-      <div class="grid grid-2" id="framework-list"></div>
-    </div>
-  </section>
-
-  <!-- ===== 更多入口 ===== -->
-  <section class="section" style="padding:24px 0">
-    <div class="container">
-      <div class="grid grid-2">
-        <a class="entry-card reveal" href="math.html">
-          <h3>🧮 先看数学板块</h3>
-          <p>数学已完整上线：高频题型、题型树、分步解析都能用。</p>
-          <span class="go">进入数学 →</span>
+      <div class="tile-grid">
+        <a class="tile reveal" href="years.html?subject=english">
+          <span class="tile-icon">📖</span>
+          <span class="tile-body"><b>五年真题拆解</b><small>235 题 · 原文生词可点 · 逐题讲为什么这么选</small></span>
+          <span class="tile-arrow">→</span>
         </a>
-        <a class="entry-card reveal d1" href="index.html">
-          <h3>🏠 返回首页</h3>
-          <p>了解苏考图谱的四步方法：拆解 → 打标 → 统计 → 标出重点。</p>
-          <span class="go">回首页 →</span>
+        <a class="tile reveal d1" href="english-words.html">
+          <span class="tile-icon">📚</span>
+          <span class="tile-body"><b>高频词汇</b><small>考过的难词全带释义 · 按出现次数排</small></span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile reveal d2" href="english-writing.html">
+          <span class="tile-icon">✍️</span>
+          <span class="tile-body"><b>写作技巧</b><small>应用文 + 读后续写模板 · 套着写就有分</small></span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile reveal d1" href="english-grammar.html">
+          <span class="tile-icon">🧩</span>
+          <span class="tile-body"><b>语法考点</b><small>语法填空考什么 · 按考过次数排先补哪块</small></span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile reveal d2" href="english-extra.html">
+          <span class="tile-icon">🚀</span>
+          <span class="tile-body"><b>额外练习</b><small>只考过 1–2 次的进阶难词 · 拉开差距的部分</small></span>
+          <span class="tile-arrow">→</span>
+        </a>
+        <a class="tile reveal d3" href="search.html?subject=english">
+          <span class="tile-icon">🔍</span>
+          <span class="tile-body"><b>搜索</b><small>单词 / 题型 / 年份，边输入边提示</small></span>
+          <span class="tile-arrow">→</span>
         </a>
       </div>
     </div>
   </section>
 
+  <!-- ===== 卷面结构一览 ===== -->
+  <section class="section" style="padding:26px 0 46px">
+    <div class="container">
+      <div class="card reveal">
+        <h3 style="font-size:16px;margin-bottom:8px">🗺 一张卷长什么样（150分）</h3>
+        <div id="en-structure"></div>
+      </div>
+    </div>
+  </section>
   <footer class="site-footer">
     <div class="container footer-slim">
       <b>苏考图谱</b> · 收集试卷 → 逐题拆解 → 打标分类 → 统计频率 → 标出重点。

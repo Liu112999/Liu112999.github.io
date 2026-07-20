@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#EDF5FF">
   <title>必拿分练习 · 苏考图谱</title>
-  <meta name="description" content="每张试卷的固定送分位：选择题前1/2 + 填空题前2道 + 解答题前2题——约62分保底分，先练到一分不丢。">
+  <meta name="description" content="每张卷子里最该先拿到手的分，已经替你挑好了——难度低、套路清晰，练到一分不丢，及格线就稳了。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -31,16 +31,21 @@
 
   <section class="page-head">
     <div class="container">
-      <div class="crumbs"><a href="index.html">首页</a> / <a href="years.html">考题练习</a> / 必拿分练习</div>
+      <div class="crumbs"><a href="index.html">首页</a> / <a href="years.html" id="crumb-years">考题练习</a> / 必拿分练习</div>
       <h1>必拿分练习 · 先把该拿的分拿到</h1>
       <p id="practice-sum" style="margin-top:6px;font-size:14px"></p>
     </div>
   </section>
 
+  <!-- ===== 科目切换 ===== -->
+  <section class="section" style="padding:22px 0 0">
+    <div class="container"><div class="subject-tabs" id="subject-tabs"></div></div>
+  </section>
+
   <!-- ===== 各年必拿题（按年折叠） ===== -->
-  <section class="section" style="padding:28px 0 8px">
+  <section class="section" style="padding:22px 0 8px">
     <div class="container">
-      <p class="reveal" style="margin:0 0 18px;font-size:13.5px;color:var(--ink-3)">
+      <p class="reveal" id="practice-lead" style="margin:0 0 18px;font-size:13.5px;color:var(--ink-3)">
         这些是每张卷子里<b style="color:var(--ink-2)">最该先拿到手的分</b>——难度低、套路清晰、练了就有回报。
         点开任意一年，直接刷。
       </p>
@@ -49,7 +54,7 @@
   </section>
 
   <!-- ===== 专项练习（只刷简单题） ===== -->
-  <section class="section" style="padding:24px 0">
+  <section class="section" style="padding:24px 0" id="practice-topics-sec">
     <div class="container">
       <div class="card reveal">
         <h3 style="font-size:16px">🎯 专项练习 · 按板块只刷简单题</h3>

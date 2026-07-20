@@ -32,7 +32,7 @@
     <div class="container">
       <div class="crumbs"><a href="index.html">首页</a> / 统计</div>
       <h1>统计 · 数据说了算</h1>
-      <p style="margin-top:6px;font-size:14.5px">频次、难度、复习优先级——所有数字从已拆解真题实时计算，没有一个是编的。</p>
+      <p style="margin-top:6px;font-size:14.5px" id="stats-lead">所有数字都从真题实时算出来，没有一个是编的——照着数据决定先复习什么。</p>
     </div>
   </section>
 
@@ -44,7 +44,7 @@
         <div class="grid grid-2">
           <div class="card reveal">
             <h3 style="font-size:16px;margin-bottom:4px">🍩 大板块题数占比</h3>
-            <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">按出现次数算（不按分值——大题小题分值不同，混在一起不严谨）：哪个板块考得最多，先复习哪个。</p>
+            <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">这张图按<b>出现次数</b>算，不按分值——大题小题分值不同，混在一张饼里不严谨。哪块考得最多，先复习哪块。</p>
             <div id="pie-topics"></div>
           </div>
           <div class="card reveal d1">
@@ -61,7 +61,7 @@
           </div>
           <div class="card reveal d1">
             <h3 style="font-size:16px;margin-bottom:4px">🔧 解题方法 TOP10</h3>
-            <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">方法维度：同一方法反复考，就是该练熟的套路。</p>
+            <p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">方法维度：跨年反复出现的解法，就是最该练熟的套路。</p>
             <div id="bars-methods"></div>
           </div>
         </div>
@@ -78,6 +78,7 @@
         <div style="margin-top:32px">
           <div class="section-head reveal" style="margin-bottom:14px">
             <h2 class="section-title">专题对比总表</h2>
+            <p class="section-desc">「出现次数」是上面各图的统一口径；「分值占比」是另一个角度——同样考 3 次，压轴大题的分量和选择题不一样，两个一起看才准。</p>
           </div>
           <div class="table-wrap reveal">
             <table>
