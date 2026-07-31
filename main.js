@@ -102,7 +102,23 @@ const _io = ("IntersectionObserver" in window)
         if (el.dataset.count !== undefined) runCount(el);
         if (el.dataset.growBox !== undefined) growBars(el);
       });
-    }, { threshold: .15, rootMargin: "0px 0px -30px 0px" })
+    }, { threshold: 0, rootMargin: "0px 0px -30px 0px" })
+  : null;
+/* 阈值必须是 0：用 0.15 的话，超长元素（如默认展开的 94 词分组，高 6600px）
+   需要露出 990px 才触发，比整个屏幕还高 → 永远触发不了，内容停在 opacity:0 变成一片空白。
+   这类「长内容整块隐形」的 bug 之前在进度条上也踩过一次，别再把阈值调回去。 */
+
+/* 条形容器专用观察器：阈值必须是 0。
+   超长词表（如英语 80+ 词的折叠组，几千像素高）在屏幕上永远同时露不出 15%，
+   用主观察器的 0.15 阈值会导致进度条永远不生长——历史bug，别改回去。 */
+const _ioBars = ("IntersectionObserver" in window)
+  ? new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        _ioBars.unobserve(en.target);
+        growBars(en.target);
+      });
+    }, { threshold: 0, rootMargin: "0px 0px -30px 0px" })
   : null;
 
 function observe(el) {
@@ -112,6 +128,7 @@ function observe(el) {
     if (el.dataset && el.dataset.growBox !== undefined) growBars(el, true);
     return;
   }
+  if (el.dataset && el.dataset.growBox !== undefined) { _ioBars.observe(el); return; }
   _io.observe(el);
 }
 function scanFx(root = document) {
@@ -142,7 +159,9 @@ function growBars(box, instant) {
   $$("[data-w]", box).forEach((b, i) => {
     const w = b.dataset.w + "%";
     if (instant) { b.style.width = w; return; }
-    setTimeout(() => { b.style.width = w; }, 60 + i * 55);
+    /* 逐行错开但封顶 700ms：长词表（100+ 行）按行错开会拖到六七秒，
+       后面的条看起来像一直没加载 */
+    setTimeout(() => { b.style.width = w; }, 60 + Math.min(i * 55, 700));
   });
   /* 环形图弧线 */
   $$(".arc[data-len]", box).forEach((a, i) => {
@@ -192,7 +211,8 @@ function buildSuggestIndex() {
   });
   ALL_QUESTIONS.forEach(q => {
     const p = paperOf(q);
-    list.push({ kind: "题目", text: qTitle(q), meta: `${p.year}·第${q.number}题`, n: 1, url: "question.html?id=" + q.id, extra: (q.method || "") + " " + q.type });
+    /* 语文/英语板块有 label（如「第36-40题」）才是卷面题号，number 只是内部序号 */
+    list.push({ kind: "题目", text: qTitle(q), meta: `${p.year}·${q.label || `第${q.number}题`}`, n: 1, url: "question.html?id=" + q.id, extra: (q.method || "") + " " + q.type });
   });
   SG_INDEX = list;
   return list;
@@ -605,11 +625,14 @@ function renderEnSub() {
   const def = w => G[String(w).toLowerCase()] || null;
 
   if (sec === "words") {
+    /* 分母统一用全表最高频次：三个分组一个标尺，往下条形自然变短。
+       各组各用组内最大值的话，「考 5 次」的条会比「考 11 次」的还长，视觉上说反话 */
+    const wMax = S.words[0] ? S.words[0].n : 10;
     const wordFolds = bandFolds(S.words,
       [{ min: 10, max: 999, title: "考了 10 次以上", hint: "五年反复出现，必须会" },
        { min: 6, max: 9, title: "考了 6–9 次", hint: "高频，优先背" },
        { min: 3, max: 5, title: "考了 3–5 次", hint: "常客，背完上面就背这批" }],
-      (x, max) => enWordRow(x.w, x, x.n, max));
+      x => enWordRow(x.w, x, x.n, wMax));
     const phraseFold = (() => {
       const max = S.phrases[0] ? S.phrases[0].n : 1;
       return foldHTML("🔗 高频短语", `${S.phrases.length} 个 · 写作直接能用`,
@@ -635,20 +658,64 @@ function renderEnSub() {
 
   if (sec === "extra") {
     /* 这页词量大（200+），全部默认收起：点开哪组看哪组，别一进来就是十屏 */
+    /* 分母用全站高频词/短语的最大频次：这页的词只考过 1–2 次，
+       条形就该是短短一截——按组内最大值算会全变满条，视觉上骗人 */
+    const gMaxW = S.words[0] ? S.words[0].n : 10;
+    const gMaxP = S.phrases[0] ? S.phrases[0].n : 5;
     const bands = [{ min: 2, max: 2, title: "考过 2 次", hint: "比 1 次的更值得先背" },
                    { min: 1, max: 1, title: "考过 1 次", hint: "生僻但真考过，认识就是赚到" }];
     const wf = bands.map(bd => {
       const list = S.rareWords.filter(x => x.n >= bd.min && x.n <= bd.max);
       if (!list.length) return "";
-      const max = list[0].n;
-      return foldHTML(bd.title, `${list.length} 个 · ${bd.hint}`, list.map(x => enWordRow(x.w, x, x.n, max)).join(""), false);
+      return foldHTML(bd.title, `${list.length} 个 · ${bd.hint}`, list.map(x => enWordRow(x.w, x, x.n, gMaxW)).join(""), false);
     }).join("");
-    const maxP = S.rarePhrases[0] ? S.rarePhrases[0].n : 1;
     const pf = foldHTML("🔗 难词组", `${S.rarePhrases.length} 个 · 只考过 1–2 次的搭配`,
-      S.rarePhrases.map(x => enWordRow(x.p, def(x.p), x.n, maxP)).join(""), false);
+      S.rarePhrases.map(x => enWordRow(x.p, def(x.p), x.n, gMaxP)).join(""), false);
     box.innerHTML = `<div class="notice reveal" style="margin-bottom:16px">
         ⚠️ <b>这页是进阶内容，不是主线。</b>先把<a href="english-words.html">高频词汇</a>背完再来——
-        那边的词考得多、性价比高；这边的词考得少但更难，属于「别人不会你会」的部分。</div>` + wf + pf;
+        那边的词考得多、性价比高；这边的词考得少但更难，属于「别人不会你会」的部分。</div>` + wf + pf
+      + `<div class="card reveal" style="margin-top:22px">
+          <h3 style="font-size:16px;margin-bottom:6px">📚 想背更多？还有课外词库</h3>
+          <p style="font-size:14px;color:var(--ink-2);line-height:1.9;margin-bottom:12px">
+            这页的词都来自<b>真题里出现过的</b>。如果这些也背完了，可以去「额外练习题库」——
+            那里是课外精选的 ${(typeof DATA_ENVOCAB !== "undefined" && DATA_ENVOCAB.items ? DATA_ENVOCAB.items.length : 375)} 条日常高频词和词组，
+            日常和考场都用得上，每条都带词性、释义和用法提示。</p>
+          <a class="btn btn-brand" href="english-vocab.html">去额外练习题库 →</a></div>`;
+  }
+
+  /* 额外练习题库：课外精选词汇（数据在 data-envocab.js，无频次概念，词典式排版） */
+  if (sec === "vocab") {
+    const V = (typeof DATA_ENVOCAB !== "undefined" && DATA_ENVOCAB) || { items: [] };
+    const items = (V.items || []).slice().sort((a, b) => a.w.localeCompare(b.w));
+    const words = items.filter(x => x.pos !== "phr.");
+    const phrs = items.filter(x => x.pos === "phr.");
+    const row = x => `<div class="rank-row ew-row">
+        <div class="rank-main"><div class="rank-name"><span class="en-word">${x.w}</span><span class="ew-cn"><i>${x.pos}</i>${x.cn}</span></div>${x.tip ? `<div class="ew-tip">${x.tip}</div>` : ""}</div>
+      </div>`;
+    const bands = [["A–F", /^[a-f]/i], ["G–M", /^[g-m]/i], ["N–S", /^[n-s]/i], ["T–Z", /^[t-z]/i]];
+    const wordFolds = bands.map((bd, i) => {
+      const list = words.filter(x => bd[1].test(x.w));
+      if (!list.length) return "";
+      return foldHTML(`📖 单词 ${bd[0]}`, `${list.length} 个`, list.map(row).join(""), i === 0);
+    }).join("");
+    const phrFold = phrs.length
+      ? foldHTML("🔗 实用词组", `${phrs.length} 个 · 写作口语都用得上`, phrs.map(row).join(""), false)
+      : "";
+    box.innerHTML = `<div class="notice reveal" style="margin-bottom:16px">
+        这批词来自课外词库素材的<b>逐条人工精选</b>：日常高频、高考真用得上的留下，太冷僻的已经筛掉。
+        和<a href="english-words.html">高频词汇</a>（真题实测）互补——那边背完再来这边。</div>`
+      + `<div class="section-head reveal" style="margin-bottom:10px"><h2 class="section-title" style="font-size:19px">🗂️ 课外精选词汇</h2>
+         <p class="section-desc">共 ${words.length} 个单词、${phrs.length} 个词组，按字母分组，每条都有词性、释义和用法提示。</p></div>`
+      + wordFolds + phrFold
+      + `<div class="card reveal" style="margin-top:22px">
+          <h3 style="font-size:16px;margin-bottom:6px">🎯 想先背「真考过」的？</h3>
+          <p style="font-size:14px;color:var(--ink-2);line-height:1.9;margin-bottom:12px">
+            这页是课外补充。如果你还没背完真题里实测出来的词表，建议先回去把那边啃下来——
+            那些是五套真题原文里真出现过的，性价比更高。</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a class="btn btn-brand" href="english-words.html">← 回高频词汇</a>
+            <a class="btn btn-ghost" href="english-extra.html">看额外练习</a>
+          </div></div>`;
   }
 
   if (sec === "grammar") {
@@ -1183,9 +1250,11 @@ function renderSearch() {
       const t = topicOf(topicParam);
       const subjQs = ALL_QUESTIONS.filter(q => q.subject === list[0].subject);
       const share = (list.length / (subjQs.length || 1) * 100).toFixed(0);
-      /* 语文/英语板块条目没有 difficulty：整段难度统计跳过，不显示 NaN */
+      /* 是否「板块建档」用 parts 判定，不能靠有没有 difficulty——英语板块两者都有，
+         按 difficulty 判会被误当成逐题学科，把 20 个语篇块报成「20 题 · 占全卷 44%」 */
+      const isBlock = list.some(q => Array.isArray(q.parts) && q.parts.length);
       const ds = list.map(q => q.difficulty).filter(d => typeof d === "number");
-      const hasDiff = ds.length === list.length;
+      const hasDiff = !isBlock && ds.length === list.length;
       const avgD = hasDiff ? (ds.reduce((a, d) => a + d, 0) / ds.length).toFixed(1) : null;
       const dist = { easy: 0, medium: 0, hard: 0 };
       if (hasDiff) list.forEach(q => dist[diffBand(q.difficulty)]++);
@@ -1200,9 +1269,11 @@ function renderSearch() {
           <div class="tree-children hidden">${qs2.sort((a, b) => paperOf(b).year - paperOf(a).year).map(q => qCardHTML(q)).join("")}</div>
         </div>`).join("");
       const years = new Set(list.map(q => paperOf(q).year)).size;
+      /* 语文/英语按板块建档：条目数≠题数，占比也不能按题数算，只报板块数与覆盖年份 */
+      const subQs = list.reduce((n, q) => n + ((q.parts || []).length || 1), 0);
       $("#search-count").textContent = hasDiff
         ? `${t ? t.name : ""} · 共 ${list.length} 题 · 占全卷 ${share}% · 平均难度 ${avgD}`
-        : `${t ? t.name : ""} · 共 ${list.length} 个板块条目 · 覆盖 ${years} 个年份`;
+        : `${t ? t.name : ""} · 共 ${list.length} 个板块（${subQs} 道小题）· 覆盖 ${years} 个年份`;
       $("#search-results").innerHTML = `<div class="topic-view-head card">
           <h3 style="font-size:16px;margin-bottom:10px">📂 ${t ? t.name : ""}${hasDiff ? " · 难度分布" : ""}</h3>
           ${hasDiff ? `<div data-grow-box>${distHTML(dist)}</div>` : ""}
@@ -1217,9 +1288,13 @@ function renderSearch() {
       english: "输入关键词试试：语法填空 / 读后续写 / 完形填空，或直接搜一个单词",
       math: "输入关键词试试：导数 / 离心率 / 隐零点 / 错位相减；或从题型树点「看全部」按分类浏览"
     };
-    $("#search-count").textContent = (kw || filtered)
-      ? `共 ${list.length} 道题目`
-      : (HINT[subjParam] || HINT.math);
+    /* 结果里混着数学单题和语文/英语板块，两种粒度分开报，别把板块说成「道题目」 */
+    const blocks = list.filter(q => q.parts && q.parts.length);
+    const blockSub = blocks.reduce((n, q) => n + q.parts.length, 0);
+    const countText = !blocks.length ? `共 ${list.length} 道题目`
+      : blocks.length === list.length ? `共 ${list.length} 个板块（${blockSub} 道小题）`
+      : `共 ${list.length - blocks.length} 道题 + ${blocks.length} 个板块（${blockSub} 道小题）`;
+    $("#search-count").textContent = (kw || filtered) ? countText : (HINT[subjParam] || HINT.math);
     $("#search-results").innerHTML = list.map(q => qCardHTML(q, { showSubject: true })).join("");
     scanFx();
   };
@@ -1301,10 +1376,15 @@ function renderYears() {
   const papers = [...data.papers].sort((a, b) => b.year - a.year);
   $("#years-container").innerHTML = papers.map(p => {
     const qs = data.questions.filter(q => q.paperId === p.id).sort((a, b) => a.number - b.number);
-    const pct = Math.round(qs.length / p.total * 100);
-    const note = p.status === "部分整理"
-      ? `<div class="notice" style="margin:10px 0 12px">部分整理（已录入 ${qs.length}/${p.total} 题），持续更新中。</div>` : "";
     const isLang = qs.length && qs[0].label;
+    /* 语文/英语按「板块」建档，一个板块含多道小题。全站统一口径：
+       分子分母都用「小题数」（papers[].total 三科一律存卷面小题数），板块数只作括号补充。
+       历史教训：曾出现「9/47 题」（把 9 个语篇块当题数）和「25/7 题」（分子小题、分母板块）两种错报。 */
+    const doneQ = isLang ? qs.reduce((n, q) => n + ((q.parts || []).length || 1), 0) : qs.length;
+    const detail = isLang ? `（${qs.length} 个板块）` : "";
+    const pct = Math.min(100, Math.round(doneQ / p.total * 100));
+    const note = p.status === "部分整理"
+      ? `<div class="notice" style="margin:10px 0 12px">部分整理（已录入 ${doneQ}/${p.total} 题），持续更新中。</div>` : "";
     const mgNums = new Set(isLang ? [] : mustGetNumbers(p));
     const quick = qs.length
       ? `<div style="margin:10px 0 12px">${qs.map(q => `<a class="chip" href="question.html?id=${q.id}"
@@ -1315,7 +1395,7 @@ function renderYears() {
       <div class="tree-row t1-row" data-toggle>
         <span class="tree-arrow">›</span><b>${p.name}</b>${paperBadge(p)}
         <span class="badge badge-low">${p.status}</span>
-        <span class="t1-meta">已录入 ${qs.length}/${p.total} 题 · 点开看整卷</span>
+        <span class="t1-meta">已录入 ${doneQ}/${p.total} 题${detail} · 点开看整卷</span>
       </div>
       <div class="tree-children hidden">
         <div class="paper-topbar">
@@ -1323,7 +1403,7 @@ function renderYears() {
             <div class="paper-meta" style="margin-top:10px">${p.structure || ""}</div>
             <div class="paper-progress" data-grow-box>
               <div class="bar-track"><div class="bar-fill" data-w="${pct}"></div></div>
-              <span>已录入 ${qs.length}/${p.total} 题</span>
+              <span>已录入 ${doneQ}/${p.total} 题</span>
             </div>
           </div>
           ${(p.pdfs && p.pdfs.length) ? `<div class="paper-pdfs">${p.pdfs.map(f =>
@@ -1422,7 +1502,10 @@ function initModel3D(host, model) {
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const INK = css("--ink") || "#101828", RED = css("--mark") || "#E11D48",
         FAR = "#B9C7DC", LAB = css("--ink-2") || "#414E68";
-  const W = Math.max(240, Math.min(430, host.clientWidth || 430)), H = Math.round(W * 0.84);
+  /* 量父容器：host 自己是 fit-content，渲染前宽度≈0，量它只会永远得到最小值。
+     再减去 host 的内边距和边框，避免窄屏下画布把卡片撑破 */
+  const avail = (host.parentElement && host.parentElement.clientWidth) || host.clientWidth || 430;
+  const W = Math.max(240, Math.min(430, avail - 16)), H = Math.round(W * 0.84);
   const dpr = window.devicePixelRatio || 1;
   const cv = document.createElement("canvas");
   cv.width = W * dpr; cv.height = H * dpr;
@@ -1880,6 +1963,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* 搜索联想：全站所有搜索框 */
   $$("input[type=search], #search-input").forEach(attachSuggest);
+
+  /* 折叠组展开时兜底触发条形生长（个别浏览器在 display 变化后不回调 IO；
+     对已生长的条重设同样宽度无副作用） */
+  document.addEventListener("toggle", e => {
+    const d = e.target;
+    if (d && d.tagName === "DETAILS" && d.open) $$("[data-grow-box]", d).forEach(b => growBars(b));
+  }, true);
 
   /* 静态元素动效 */
   scanFx();
