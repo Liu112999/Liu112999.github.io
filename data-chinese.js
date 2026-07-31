@@ -81,7 +81,7 @@ const DATA_CHINESE = {
       year: 2025,
       name: "2025 新高考Ⅰ卷",
       type: "真题",
-      total: 7,
+      total: 25,
       status: "已拆解",
       structure: "现代文阅读35分 + 文言22分 + 诗歌9分 + 默写6分 + 语言文字运用18分 + 作文60分 · 共150分",
       pdfs: [
@@ -97,7 +97,7 @@ const DATA_CHINESE = {
       year: 2024,
       name: "2024 新高考Ⅰ卷",
       type: "真题",
-      total: 7,
+      total: 25,
       status: "已拆解",
       structure: "现代文阅读35分 + 文言22分 + 诗歌9分 + 默写6分 + 语言文字运用18分 + 作文60分 · 共150分",
       pdfs: [
@@ -113,7 +113,7 @@ const DATA_CHINESE = {
       year: 2023,
       name: "2023 新高考Ⅰ卷",
       type: "真题",
-      total: 7,
+      total: 25,
       status: "已拆解",
       structure: "现代文阅读35分 + 文言/诗歌/默写35分 + 语言文字运用20分 + 作文60分 · 共150分",
       pdfs: [
@@ -129,7 +129,7 @@ const DATA_CHINESE = {
       year: 2022,
       name: "2022 新高考Ⅰ卷",
       type: "真题",
-      total: 7,
+      total: 25,
       status: "已拆解",
       structure: "现代文阅读35分 + 文言/诗歌/默写35分 + 语言文字运用20分 + 作文60分 · 共150分",
       pdfs: [
@@ -145,7 +145,7 @@ const DATA_CHINESE = {
       year: 2021,
       name: "2021 新高考Ⅰ卷",
       type: "真题",
-      total: 7,
+      total: 25,
       status: "已拆解",
       structure: "现代文阅读35分 + 文言/诗歌/默写35分 + 语言文字运用20分 + 作文60分 · 共150分",
       pdfs: [
