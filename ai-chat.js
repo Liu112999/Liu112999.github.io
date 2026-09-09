@@ -500,21 +500,33 @@
     loadKatex().then(() => typeset(ui.body));
   }
 
+  let bodyLocked = false;                    /* 记录本面板是否锁了滚动，避免旋转屏后解锁不平衡 */
   function openPanel() {
     buildPanel();
+    const mobile = matchMedia("(max-width: 620px)").matches;
     /* 移动端是全屏（模态），桌面是浮窗（非模态），语义跟着走 */
-    if (matchMedia("(max-width: 620px)").matches) ui.panel.setAttribute("aria-modal", "true");
+    if (mobile) ui.panel.setAttribute("aria-modal", "true");
     else ui.panel.removeAttribute("aria-modal");
     ui.panel.classList.add("open");
     ui.dock.classList.add("hide");
-    if (matchMedia("(max-width: 620px)").matches) document.body.style.overflow = "hidden";
+    if (mobile && !bodyLocked) {
+      bodyLocked = true;
+      /* iOS 上 body overflow:hidden 无效——优先用 main.js 提供的 fixed+top 补偿锁 */
+      const lk = window.__sukaoScrollLock;
+      if (lk) lk.lock(); else document.body.style.overflow = "hidden";
+    }
     scrollBottom(true);
-    ui.input.focus();
+    /* 移动端不自动聚焦：聚焦会立刻弹键盘，且 iOS 对 <16px 输入框还会整页放大 */
+    if (!mobile) ui.input.focus();
   }
   function closePanel() {
     ui.panel.classList.remove("open");
     ui.dock.classList.remove("hide");
-    document.body.style.overflow = "";
+    if (bodyLocked) {
+      bodyLocked = false;
+      const lk = window.__sukaoScrollLock;
+      if (lk) lk.unlock(); else document.body.style.overflow = "";
+    }
     /* 焦点还给可见的那个：入口收着时药丸是隐藏的，聚焦箭头。
        两个坑：①面板的 visibility 有 .28s 过渡，过渡结束时浏览器会把面板内仍聚焦的元素
        强制 blur，把刚设好的焦点打回 body——所以先主动把焦点移出面板；

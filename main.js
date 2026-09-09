@@ -292,7 +292,8 @@ function attachSuggest(input) {
     if (e.key === "ArrowDown") { e.preventDefault(); active = (active + 1) % items.length; paint(); }
     else if (e.key === "ArrowUp") { e.preventDefault(); active = (active - 1 + items.length) % items.length; paint(); }
     else if (e.key === "Enter" && active >= 0 && items[active]) { e.preventDefault(); location.href = items[active].url; }
-    else if (e.key === "Escape") close();
+    /* stopPropagation：Esc 只收联想框，别让同一次按键冒泡到 document 把抽屉也关了 */
+    else if (e.key === "Escape") { e.stopPropagation(); close(); }
   });
 }
 
@@ -1225,8 +1226,10 @@ function renderSearch() {
     if (topicParam) { const t = topicOf(topicParam); if (t) label = (label ? label + " · " : "") + "专题：" + t.name; }
     if (subParam) label = (label ? label + " · " : "") + "子专题：" + esc(subParam);
     if (easyParam) label = (label ? label + " · " : "") + "只看简单题（难度≤3）";
+    /* 清筛选时保住科目上下文，别把语文/英语学生甩回全站混合视图 */
+    const clearHref = subjParam && SUBJECT_DATA[subjParam] ? "search.html?subject=" + subjParam : "search.html";
     ctxBox.innerHTML = label
-      ? `<span class="search-ctx">📂 ${label}<a href="search.html" title="清除筛选">✕ 清除</a></span>` : "";
+      ? `<span class="search-ctx">📂 ${label}<a href="${clearHref}" title="清除筛选">✕ 清除</a></span>` : "";
   }
 
   const run = () => {
@@ -1427,11 +1430,9 @@ function renderPractice() {
   const data = SUBJECT_DATA[subId];
   const box = $("#practice-main");
   if (!box) return;
-  /* 科目切换 + 面包屑带上 subject（否则语文/英语学生点"考题练习"会被甩回数学卷） */
+  /* 科目切换（面包屑已由 injectCrumbs() 统一生成，含 subject） */
   const tabs = $("#subject-tabs");
   if (tabs) tabs.innerHTML = subjectTabsHTML(subId, "practice.html");
-  const crumb = $("#crumb-years");
-  if (crumb) crumb.href = "years.html?subject=" + subId;
   const packs = mustGetPacks(subId);
 
   if (!packs.length) {
@@ -1466,7 +1467,7 @@ function renderPractice() {
         <span class="tree-arrow">›</span><b>${pk.paper.name}</b>${paperBadge(pk.paper)}
         <span class="pk-score">${pk.questions.length} 题 · ${pk.score} 分</span>
         ${s.n ? `<span class="pk-done">${s.n === s.total ? "✅ 已刷完" : `已练 ${s.n}/${s.total}`}</span>` : ""}
-        <span class="t1-meta"><a class="tree-all" href="years.html#y${pk.paper.year}">看整卷 →</a></span>
+        <span class="t1-meta"><a class="tree-all" href="years.html?subject=${subId}#y${pk.paper.year}">看整卷 →</a></span>
       </div>
       <div class="tree-children hidden">
         <div class="pick-grid" style="margin-top:10px">
@@ -1631,7 +1632,7 @@ function renderChineseBlock(q, box) {
 
     <p style="margin-top:24px">
       <a class="btn btn-brand" href="${SUBJECT_META.find(m => m.id === q.subject).page}">← 返回${subjectName(q.subject)}</a>
-      <a class="btn btn-soft" href="years.html?subject=${q.subject}">考题练习</a>
+      <a class="btn btn-soft" href="years.html?subject=${q.subject}#y${p.year}">↩ 返回真题列表（本卷）</a>
     </p>
   </div>`;
   bindDoneBtn(box, q.id);
@@ -1729,18 +1730,28 @@ function renderEnglishBlock(q, box) {
 
     <p style="margin-top:24px">
       <a class="btn btn-brand" href="english.html">← 返回英语</a>
-      <a class="btn btn-soft" href="years.html?subject=english">考题练习</a>
+      <a class="btn btn-soft" href="years.html?subject=english#y${p.year}">↩ 返回真题列表（本卷）</a>
     </p>
   </div>`;
 
   /* 生词点击展开（键盘也能用） */
+  /* 生词开合：靠近右缘时弹层翻到左侧展开，不然会把手机页面撑出横向溢出。
+     点击与键盘（Enter/空格）两条路径共用，别只修一半 */
+  const toggleGw = w => {
+    w.classList.toggle("open");
+    const pop = $(".gw-pop", w);
+    if (pop && w.classList.contains("open")) {
+      pop.classList.remove("flip");
+      if (pop.getBoundingClientRect().right > window.innerWidth - 8) pop.classList.add("flip");
+    }
+  };
   box.addEventListener("click", e => {
     const w = e.target.closest(".gw");
-    if (w && !e.target.closest(".gw-pop")) w.classList.toggle("open");
+    if (w && !e.target.closest(".gw-pop")) toggleGw(w);
   });
   box.addEventListener("keydown", e => {
     if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("gw")) {
-      e.preventDefault(); e.target.classList.toggle("open");
+      e.preventDefault(); toggleGw(e.target);
     }
   });
   bindDoneBtn(box, q.id);
@@ -1760,9 +1771,7 @@ function renderQuestion() {
     return;
   }
 
-  /* 面包屑带上本题科目，别让语文/英语学生点回去落到数学卷 */
-  const crumb = $("#crumb-years");
-  if (crumb) crumb.href = "years.html?subject=" + q.subject;
+  /* 面包屑已由 injectCrumbs() 统一生成（含科目/年份/锚点），此处不再改写 */
 
   if (q.subject === "english" && q.parts) { renderEnglishBlock(q, box); return; }
   if (q.parts) { renderChineseBlock(q, box); return; }   /* 语言学科板块条目走专用渲染 */
@@ -1869,7 +1878,7 @@ function renderQuestion() {
 
     <p style="margin-top:24px">
       <a class="btn btn-brand" href="${SUBJECT_META.find(m => m.id === q.subject).page}">← 返回${subjectName(q.subject)}</a>
-      <a class="btn btn-soft" href="years.html?subject=${q.subject}">考题练习</a>
+      <a class="btn btn-soft" href="years.html?subject=${q.subject}#y${p.year}">↩ 返回真题列表（本卷）</a>
     </p>
   </div>`;
 
@@ -1923,6 +1932,228 @@ function renderQuestion() {
 }
 
 /* =====================================================================
+   全站导航（第十一轮）：左侧抽屉导航 + 统一路径面包屑
+   ---------------------------------------------------------------------
+   全部由 JS 注入，17 个 HTML 零结构改动；file:// 双击打开同样可用
+   （不 fetch 片段、不用 module）。注入必须发生在页面渲染分发之前：
+   哪个 renderer 抛了错，导航和面包屑也得活着当逃生通道。
+   ===================================================================== */
+const NAV_TREE = [
+  { icon: "🏠", label: "首页", href: "index.html" },
+  { id: "math", icon: "🧮", label: "数学", href: "math.html", accent: "#2563EB", children: [
+    { label: "数学主页 · 题型地图", href: "math.html" },
+    { label: "真题练习", href: "years.html?subject=math" },
+    { label: "必拿分练习", href: "practice.html?subject=math" },
+    { label: "统计图表", href: "stats.html?subject=math" }
+  ] },
+  { id: "chinese", icon: "📖", label: "语文", href: "chinese.html", accent: "#9E4038", children: [
+    { label: "语文主页", href: "chinese.html" },
+    { label: "必背默写", href: "chinese-recite.html" },
+    { label: "作文专区", href: "chinese-essay.html" },
+    { label: "文言与诗歌", href: "chinese-classics.html" },
+    { label: "真题练习", href: "years.html?subject=chinese" },
+    { label: "统计图表", href: "stats.html?subject=chinese" }
+  ] },
+  { id: "english", icon: "🔤", label: "英语", href: "english.html", accent: "#3E8E5A", children: [
+    { label: "英语主页", href: "english.html" },
+    { label: "真题练习 · 逐题拆解", href: "years.html?subject=english" },
+    { label: "高频词汇", href: "english-words.html" },
+    { label: "语法考点", href: "english-grammar.html" },
+    { label: "写作技巧", href: "english-writing.html" },
+    { label: "额外练习 · 真题进阶词", href: "english-extra.html" },
+    { label: "额外题库 · 课外精选词", href: "english-vocab.html" },
+    { label: "统计图表", href: "stats.html?subject=english" }
+  ] },
+  { icon: "🔍", label: "全站搜索", href: "search.html" }
+];
+
+/* 语/英子页 data-sec → 面包屑用名 */
+const NAV_SEC_LABEL = {
+  recite: "必背默写", essay: "作文专区", classics: "文言与诗歌",
+  words: "高频词汇", extra: "额外练习", vocab: "额外练习题库",
+  writing: "写作技巧", grammar: "语法考点"
+};
+
+/* ---------- iOS 可靠的 body 滚动锁（position:fixed + top 补偿；计数式，
+   抽屉与 AI 面板共用——overflow:hidden 在 iOS Safari 对 body 无效） ---------- */
+let _navLockN = 0, _navLockY = 0;
+function navScrollLock() {
+  if (++_navLockN > 1) return;
+  _navLockY = window.scrollY || 0;
+  document.documentElement.style.scrollBehavior = "auto";
+  const bs = document.body.style;
+  bs.position = "fixed"; bs.top = (-_navLockY) + "px";
+  bs.left = "0"; bs.right = "0"; bs.width = "100%";
+}
+function navScrollUnlock() {
+  if (_navLockN === 0 || --_navLockN > 0) return;
+  const bs = document.body.style;
+  bs.position = ""; bs.top = ""; bs.left = ""; bs.right = ""; bs.width = "";
+  window.scrollTo(0, _navLockY);
+  document.documentElement.style.removeProperty("scroll-behavior");
+}
+window.__sukaoScrollLock = { lock: navScrollLock, unlock: navScrollUnlock };
+
+/* 题目档案页：凭 URL 的 id 反查题目与试卷（不依赖 renderQuestion 的中间状态） */
+function navQuestionCtx() {
+  if (document.body.dataset.page !== "question") return null;
+  const id = new URLSearchParams(location.search).get("id");
+  const q = id && questionById(id);
+  const p = q && paperOf(q);
+  return q && p ? { q, p } : null;      /* paperId 悬空的脏数据也别让面包屑炸掉 */
+}
+
+/* 当前位置：文件名 + 生效科目（question 页科目取自题目本身） */
+function navCurrentKey() {
+  const file = decodeURIComponent(location.pathname.split("/").pop() || "") || "index.html";
+  const ctx = navQuestionCtx();
+  if (ctx) return { file: "years.html", subj: ctx.q.subject };
+  return { file, subj: currentSubjectId() };
+}
+function navMatch(href, cur) {
+  const [path, qs] = href.split("?");
+  if (path.split("/").pop() !== cur.file) return false;
+  const s = qs ? new URLSearchParams(qs).get("subject") : null;
+  return s === null || s === cur.subj;
+}
+
+/* ---------- 抽屉注入 ---------- */
+function injectDrawer() {
+  const headerInner = $(".header-inner");
+  if (!headerInner || $(".sd")) return;
+  const cur = navCurrentKey();
+
+  const svgBurger = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>`;
+  const svgChevron = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>`;
+  const svgMag = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13.2 13.2L17 17"/></svg>`;
+
+  const rows = NAV_TREE.map(node => {
+    if (!node.children) {
+      const on = navMatch(node.href, cur) ? " on" : "";
+      return `<a class="sd-item${on}" href="${node.href}"${on ? ' aria-current="page"' : ""}>${node.icon} ${esc(node.label)}</a>`;
+    }
+    const kids = node.children.map(c => {
+      const on = navMatch(c.href, cur) ? " on" : "";
+      return `<a class="${on ? "on" : ""}" href="${c.href}"${on ? ' aria-current="page"' : ""}>${esc(c.label)}</a>`;
+    }).join("");
+    const hasOn = kids.includes('aria-current');
+    /* 组头整行=展开/收起，不跳转——用户点「语文」是想看语文里有什么，
+       直接跳走等于逼他多点一遍返回；进主页走子菜单第一项 */
+    return `<div class="sd-grp${hasOn ? " open has-on" : ""}" style="--acc:${node.accent}">
+      <button class="sd-item sd-gt" type="button" aria-expanded="${hasOn}">
+        <span class="sd-gt-t">${node.icon} ${esc(node.label)}</span>${svgChevron}
+      </button>
+      <div class="sd-sub">${kids}</div>
+    </div>`;
+  }).join("");
+
+  document.body.insertAdjacentHTML("beforeend", `<div class="sd-mask" aria-hidden="true"></div>
+<aside class="sd" id="site-drawer" role="dialog" aria-modal="true" aria-label="站内导航">
+  <div class="sd-head"><div class="brand-mark">苏</div><b>苏考图谱</b>
+    <button class="sd-close" type="button" aria-label="关闭导航">✕</button></div>
+  <form class="sd-search" action="search.html" role="search">
+    <input type="search" name="q" placeholder="搜题型 / 方法 / 考点" aria-label="全站搜索">
+  </form>
+  <nav class="sd-nav">${rows}</nav>
+</aside>`);
+  headerInner.insertAdjacentHTML("afterbegin",
+    `<button class="sd-btn" type="button" aria-label="打开站内导航" aria-expanded="false" aria-controls="site-drawer">${svgBurger}</button>`);
+  headerInner.insertAdjacentHTML("beforeend",
+    `<a class="m-search" href="search.html" aria-label="搜索">${svgMag}</a>`);
+
+  const mask = $(".sd-mask"), sd = $(".sd"), btn = $(".sd-btn");
+  const sdOpen = () => {
+    sd.classList.add("open"); mask.classList.add("show");
+    btn.setAttribute("aria-expanded", "true");
+    navScrollLock();
+    $(".sd-close", sd).focus();
+  };
+  const sdClose = () => {
+    if (!sd.classList.contains("open")) return;
+    if (sd.contains(document.activeElement)) document.activeElement.blur();
+    sd.classList.remove("open"); mask.classList.remove("show");
+    btn.setAttribute("aria-expanded", "false");
+    navScrollUnlock();
+    btn.focus();
+  };
+  btn.addEventListener("click", sdOpen);
+  $(".sd-close", sd).addEventListener("click", sdClose);
+  mask.addEventListener("click", sdClose);
+  /* 遮罩挡住的背景禁止触摸滚动穿透（旧内核兜底） */
+  mask.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape" || !sd.classList.contains("open")) return;
+    if ($(".ai-panel.open")) return;         /* AI 面板开着时让位，由它先关 */
+    sdClose();
+  });
+  /* Tab 圈养在抽屉内 */
+  sd.addEventListener("keydown", e => {
+    if (e.key !== "Tab") return;
+    const els = $$("a[href], button, input", sd).filter(el => el.offsetParent !== null);
+    if (!els.length) return;
+    const first = els[0], last = els[els.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  /* 分组展开/收起（组头整行触发） */
+  $$(".sd-gt", sd).forEach(x => x.addEventListener("click", () => {
+    const grp = x.closest(".sd-grp");
+    const open = grp.classList.toggle("open");
+    x.setAttribute("aria-expanded", open);
+  }));
+}
+
+/* ---------- 统一面包屑 ---------- */
+function setCrumbs(items) {
+  if (!items || !items.length) return;
+  let el = $(".page-head .crumbs");
+  if (!el) {
+    const host = $(".page-head .container");
+    if (!host) return;
+    host.insertAdjacentHTML("afterbegin", `<div class="crumbs"></div>`);
+    el = $(".page-head .crumbs");
+  }
+  el.setAttribute("role", "navigation");
+  el.setAttribute("aria-label", "当前位置");
+  el.innerHTML = "<ol>" + items.map((c, i) =>
+    i === items.length - 1
+      ? `<li><span aria-current="page">${esc(c.t)}</span></li>`
+      : `<li><a href="${c.h}">${esc(c.t)}</a></li>`
+  ).join("") + "</ol>";
+  /* 窄屏横滚时默认停在末级（当前位置） */
+  const ol = $("ol", el);
+  requestAnimationFrame(() => { ol.scrollLeft = ol.scrollWidth; });
+}
+function injectCrumbs() {
+  const page = document.body.dataset.page;
+  if (!page || page === "home") return;
+  const HOME = { t: "首页", h: "index.html" };
+  const subj = id => ({ t: subjectName(id), h: SUBJECT_META.find(m => m.id === id).page });
+  const sid = currentSubjectId();
+  const sec = document.body.dataset.sec;
+
+  if (page === "subject") return setCrumbs([HOME, { t: subjectName(sid) }]);
+  if (page === "cn-sub") return setCrumbs([HOME, subj("chinese"), { t: NAV_SEC_LABEL[sec] || "" }]);
+  if (page === "en-sub") return setCrumbs([HOME, subj("english"), { t: NAV_SEC_LABEL[sec] || "" }]);
+  if (page === "years") return setCrumbs([HOME, subj(sid), { t: "真题练习" }]);
+  if (page === "stats") return setCrumbs([HOME, subj(sid), { t: "统计" }]);
+  if (page === "practice") return setCrumbs([HOME, subj(sid),
+    { t: "真题练习", h: "years.html?subject=" + sid }, { t: "必拿分练习" }]);
+  if (page === "search") {
+    const sp = new URLSearchParams(location.search).get("subject");
+    return setCrumbs(sp && SUBJECT_DATA[sp] ? [HOME, subj(sp), { t: "搜索" }] : [HOME, { t: "搜索" }]);
+  }
+  if (page === "question") {
+    const ctx = navQuestionCtx();
+    if (!ctx) return setCrumbs([HOME, { t: "真题练习", h: "years.html" }, { t: "题目档案" }]);
+    const { q, p } = ctx;
+    const leaf = q.parts ? `${p.year} · ${q.section}` : `${p.year} · 第${q.number}题`;
+    return setCrumbs([HOME, subj(q.subject),
+      { t: "真题练习", h: `years.html?subject=${q.subject}#y${p.year}` }, { t: leaf }]);
+  }
+}
+
+/* =====================================================================
    页面分发 + 全局交互
    ===================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
@@ -1947,6 +2178,18 @@ document.addEventListener("DOMContentLoaded", () => {
     onScroll();
   }
 
+  /* 导航先于页面渲染注入：renderer 抛错时，抽屉和面包屑仍是逃生通道。
+     注入自身也兜底——导航坏了不能连累页面渲染 */
+  try { injectDrawer(); } catch (err) { console.error("抽屉导航注入失败：", err); }
+  try { injectCrumbs(); } catch (err) { console.error("面包屑注入失败：", err); }
+
+  /* 窄屏时超长 placeholder 会被输入框右缘裁掉半个字，换短版 */
+  if (matchMedia("(max-width: 620px)").matches) {
+    $$(".hero-search input").forEach(i => {
+      if ((i.placeholder || "").length > 14) i.placeholder = "搜题型 / 方法 / 考点";
+    });
+  }
+
   const page = document.body.dataset.page;
   const renderers = {
     home: renderHome,
@@ -1959,7 +2202,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "cn-sub": renderCnSub,
     "en-sub": renderEnSub
   };
-  (renderers[page] || (() => {}))();
+  try { (renderers[page] || (() => {}))(); }
+  catch (err) { console.error("页面渲染失败（导航仍可用）：", err); }
 
   /* 搜索联想：全站所有搜索框 */
   $$("input[type=search], #search-input").forEach(attachSuggest);
