@@ -1231,7 +1231,8 @@ body.sub-chinese .section-title::before {
 }
 @media (max-width: 760px) {
   .page-head .ink-scroll { width: 100%; opacity: .38; }
-  .page-head.ink-hero .ink-scroll { opacity: .5; }
+  /* 窄屏文字必然与横卷重叠：把卷压得更淡，字永远浮在山上而不是撞进山里 */
+  .page-head.ink-hero .ink-scroll { opacity: .3; }
   .page-head.ink-hero { padding: 40px 0 64px; }
 }
 
@@ -1239,6 +1240,15 @@ body.sub-chinese .section-title::before {
 /* ① 宣纸纸纹：极细噪点，肉眼只感到"纸有肌理"，看不出颗粒 */
 body.sub-chinese {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .21 0 0 0 0 .23 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+/* ①b 纸上云气：纸纹之上再铺两团极淡青灰（中部偏右、左下），长页滚起来
+   浓淡有起伏，不再是一张平光的纸——只染留白，卡片实底压不到字 */
+body.sub-chinese {
+  background-image:
+    radial-gradient(1100px 420px at 105% 36%, rgba(110, 130, 145, .075), transparent 70%),
+    radial-gradient(760px 300px at -8% 74%, rgba(90, 107, 119, .055), transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .21 0 0 0 0 .23 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat, repeat;
 }
 /* ② 角落墨晕：右上一团、左下一团，只染留白处（卡片是实底纸色，压不到字） */
 body.sub-chinese::before {
@@ -1255,7 +1265,7 @@ body.sub-chinese::after {
 body.sub-chinese .site-footer { overflow: visible; }
 body.sub-chinese .site-footer::after {
   content: ""; position: absolute; left: 0; right: 0; top: -72px; height: 72px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 80' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='2.6'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%236E8291' opacity='.10' d='M0 80 L0 58 Q150 32 310 52 Q430 66 570 56 Q710 44 840 58 Q990 72 1140 60 Q1310 46 1450 60 L1600 50 L1600 80 Z'/%3E%3Cpath filter='url(%23b)' fill='%235A6B77' opacity='.07' d='M180 80 Q350 50 520 64 Q660 74 800 62 Q950 50 1120 66 Q1280 78 1440 68 L1600 60 L1600 80 L180 80 Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 80' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='2.6'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%236E8291' opacity='.16' d='M0 80 L0 58 Q150 32 310 52 Q430 66 570 56 Q710 44 840 58 Q990 72 1140 60 Q1310 46 1450 60 L1600 50 L1600 80 Z'/%3E%3Cpath filter='url(%23b)' fill='%235A6B77' opacity='.11' d='M180 80 Q350 50 520 64 Q660 74 800 62 Q950 50 1120 66 Q1280 78 1440 68 L1600 60 L1600 80 L180 80 Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
   pointer-events: none;
 }
 /* ④ 页头画卷底缘化进正文：一段纸色渐变，避免横带式的生硬截断 */
@@ -1263,6 +1273,27 @@ body.sub-chinese .page-head::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 34px;
   background: linear-gradient(180deg, rgba(251, 252, 251, 0), #FBFCFB);
   pointer-events: none;
+}
+
+/* ---- 意境增强（第十二轮·老板嫌"同一风格略单调"后加的层次） ---- */
+/* ⑤ 页头天色：纯纸白改为一抹极淡的天青自上而下化开，右上随横卷方向晕一团山影青 */
+body.sub-chinese .page-head {
+  background:
+    radial-gradient(640px 300px at 88% -30%, rgba(110, 130, 145, .17), transparent 70%),
+    linear-gradient(180deg, #F3F7F6 0%, #FBFCFB 72%);
+}
+/* ⑦ 页脚归入画中：页脚底色回宣纸白（全局写死的 #FFFFFF 在这里是刺眼的白条），
+   顶缘的品牌渐变条撤掉——远山正落在页脚上缘，一条锐利深线会把山拦腰切断 */
+body.sub-chinese .site-footer { background: var(--bg); }
+body.sub-chinese .site-footer::before { display: none; }
+/* ⑥ 朱磦印章：页头标题右侧一枚「苏考」白文小印——水墨画的点睛章，
+   设计哲学允许的唯一朱磦用法（印章式极小强调），全站语文页统一落款 */
+body.sub-chinese .page-head h1::after {
+  content: ""; display: inline-block; width: 26px; height: 26px;
+  margin-left: 12px; vertical-align: 2px;
+  transform: rotate(-4deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cfilter id='s' x='-8%25' y='-8%25' width='116%25' height='116%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.28' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='2.8'/%3E%3C/filter%3E%3Cg filter='url(%23s)'%3E%3Crect x='3' y='3' width='42' height='42' rx='2.5' fill='%239E4038'/%3E%3Ctext x='24' y='21.5' font-family='Kaiti%20SC,STKaiti,KaiTi,serif' font-size='17.5' font-weight='700' fill='%23FBFCFB' text-anchor='middle'%3E%E8%8B%8F%3C/text%3E%3Ctext x='24' y='41' font-family='Kaiti%20SC,STKaiti,KaiTi,serif' font-size='17.5' font-weight='700' fill='%23FBFCFB' text-anchor='middle'%3E%E8%80%83%3C/text%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+  opacity: .9;
 }
 
 /* ---- 语文间距打磨（默写页 recite 保持原样，不在选择器内） ---- */
@@ -1312,16 +1343,50 @@ body.sub-chinese .cn-intro { margin-top: 22px; padding: 18px 24px; }
   @page { margin: 14mm 12mm; }
 }
 
-/* ===== 分科主题：英语（淡草绿 · 西式清新） ===== */
+/* ===== 分科主题：英语（植物绿 · 晨叶光） =====
+   第十三轮定稿：绿是主体（老板：植物颜色、绿色环境为主，暖最多一丝丝）。
+   设计语言与数学同构——数学是蓝→青的色相旅程，英语是芽绿→薄荷青；
+   "亮"来自页头中上方一枚真实的径向高光（近白心、深绿角），不是把底色调白。 */
 body.sub-english {
-  --bg: #F6FAF5; --surface-2: #F2F8F0; --line: #E1EBDD; --line-2: #CFE0C9;
+  /* 最终定稿（老板逐轮拍板）：柔和淡青绿页头（青顶绿底、不翻转）；
+     正文底色基准 = 线上旧版 #F6FAF5（老板：纯白差一点点绿），在它之上加 0.8% 绿 */
+  --bg: #F5FAF4; --surface-2: #F1F8EF; --line: #E1EBDD; --line-2: #CFE0C9;
   --brand: #3E8E5A; --brand-2: #5E9E4A; --brand-3: #2F7D6D;
   --brand-soft: #EAF4E9; --brand-line: #CFE4CC;
   --brand-grad: linear-gradient(115deg, #3E8E5A, #6BA84F 55%, #2F7D6D);
   --grad-soft: linear-gradient(120deg, #EAF4E9, #E8F5EE);   /* 淡草绿：答案框跟着绿系走 */
-  --glow: 0 8px 26px rgba(62, 142, 90, .20);
+  --hero-bg: linear-gradient(180deg, #E3F1F2 0%, #EAF6EC 52%, #F3FAEF 100%);
+  --glow: 0 8px 26px rgba(62, 142, 90, .18);
+  /* 卡片阴影带绿灰，白卡浮在绿底上更贴 */
+  --shadow: 0 1px 2px rgba(52, 96, 50, .05), 0 10px 30px rgba(52, 96, 50, .07);
+  --shadow-lg: 0 6px 18px rgba(52, 96, 50, .08), 0 24px 56px rgba(52, 96, 50, .11);
 }
 body.sub-english .hero-orb { opacity: .45; }
+/* 页头光晕：左芽绿、右薄荷青两团，底缘渐入内容底色（柔化交界线） */
+body.sub-english .page-head::before {
+  background:
+    radial-gradient(560px 260px at 10% -30%, rgba(150, 208, 95, .17), transparent 65%),
+    radial-gradient(520px 250px at 88% -22%, rgba(90, 180, 195, .16), transparent 65%),
+    linear-gradient(180deg, rgba(245, 250, 244, 0) 60%, rgba(245, 250, 244, .9) 100%);
+}
+/* 正文两条极淡光带：柔和的绿/青绿洇到首屏以下 */
+body.sub-english {
+  background-image:
+    radial-gradient(1000px 420px at 106% 26%, rgba(150, 208, 95, .06), transparent 70%),
+    radial-gradient(820px 360px at -8% 70%, rgba(90, 180, 170, .05), transparent 72%);
+  background-repeat: no-repeat, no-repeat;
+}
+/* 米色提示条在绿页上是唯一暖色块（金黄残留），换绿调 */
+body.sub-english .notice { background: #EDF7E2; border-color: #C6E2AC; color: #33622F; }
+body.sub-english .tile-arrow { color: var(--brand); }
+/* 页脚草坡：与语文页脚远山成对的英语版收笔；顶缘渐变条会切断草坡，撤掉 */
+body.sub-english .site-footer { overflow: visible; background: var(--bg); }
+body.sub-english .site-footer::before { display: none; }
+body.sub-english .site-footer::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -76px; height: 76px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 84' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='2.4'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%235E9E4A' opacity='.16' d='M0 84 L0 62 Q180 38 360 56 Q520 70 690 58 Q850 46 1010 60 Q1180 74 1340 62 L1600 50 L1600 84 Z'/%3E%3Cpath filter='url(%23b)' fill='%233E8E5A' opacity='.12' d='M120 84 Q320 54 540 66 Q700 74 880 64 Q1060 52 1250 68 Q1420 80 1600 66 L1600 84 L120 84 Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
 /* 英语词表：等宽感西文 + 双列布局 */
 .en-word { font-weight: 700; letter-spacing: .01em; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
 .en-word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 36px; }
@@ -1806,4 +1871,203 @@ details.rc-item[open] summary::after { transform: rotate(90deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ai-launcher, .ai-panel, .ai-dock, .ai-fold svg { transition: none; }
+}
+
+/* =====================================================================
+   全站导航（第十一轮）：左侧抽屉导航 + 路径面包屑 + 移动端单行页头
+   ---------------------------------------------------------------------
+   层级约定（全局 z-index 阶梯）：页头 90 → 下拉 400 → AI 入口 470 →
+   抽屉遮罩 480 → 抽屉 490 → AI 面板 500（全屏对话永远最顶）。
+   抽屉 DOM 由 main.js 注入且必须挂 body 直下——页头有 backdrop-filter，
+   会成为 fixed 后代的包含块，放进去抽屉就"钉死"在页头里了。
+   ===================================================================== */
+
+/* ---------- 汉堡按钮（页头最左）与移动端搜索图标 ---------- */
+.sd-btn {
+  order: -1; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink-2); transition: color .2s, border-color .2s, background .2s;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.sd-btn:hover { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); }
+.sd-btn svg { width: 19px; height: 19px; }
+.m-search {
+  display: none; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface);
+  align-items: center; justify-content: center; color: var(--ink-2);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.m-search svg { width: 18px; height: 18px; }
+
+/* ---------- 抽屉本体 ---------- */
+.sd-mask {
+  position: fixed; inset: 0; z-index: 480;
+  background: rgba(15, 23, 42, .45);
+  opacity: 0; pointer-events: none; transition: opacity .26s;
+}
+.sd-mask.show { opacity: 1; pointer-events: auto; }
+.sd {
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 490;
+  width: min(312px, 86vw);
+  background: var(--bg); border-right: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+  padding-left: env(safe-area-inset-left, 0px);
+  transform: translateX(-104%);
+  /* visibility 的过渡只写在基态：隐藏时淡出、显示时瞬时可见——
+     否则打开的 250ms 内计算值仍是 hidden，focus() 会被静默拒绝（ai-dock 同款坑） */
+  visibility: hidden;
+  transition: transform .3s var(--ease), visibility .3s;
+}
+.sd.open { transform: none; visibility: visible; transition: transform .3s var(--ease); }
+.sd-head {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 14px 13px 16px; border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.sd-head b { flex: 1; font-size: 16px; color: var(--ink); }
+.sd-close {
+  flex-shrink: 0; width: 40px; height: 40px; border: none; background: transparent;
+  border-radius: 10px; cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink-3);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.sd-close:hover { background: var(--surface-2); color: var(--ink); }
+.sd-search { padding: 12px 14px 4px; flex-shrink: 0; position: relative; }
+.sd-search input {
+  width: 100%; border: 1px solid var(--line-2); border-radius: 11px;
+  padding: 9px 13px; font-size: 15px; font-family: inherit;
+  background: var(--surface); color: var(--ink); outline: none;
+}
+.sd-search input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+/* 抽屉里的搜索联想框跟随输入框全宽 */
+.sd-search .sg-box { left: 14px; right: 14px; width: auto; min-width: 0; }
+.sd-nav {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 8px 10px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.sd-item {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 46px; padding: 0 12px; border-radius: 12px;
+  font-size: 14.5px; font-weight: 600; color: var(--ink);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.sd-item:hover { background: var(--surface-2); color: var(--ink); }
+.sd-item.on { background: var(--brand-soft); color: var(--brand); }
+.sd-grp { margin-top: 2px; }
+/* 组头是按钮不是链接：点一下原地展开该科子菜单（跳主页走子菜单第一项） */
+.sd-gt {
+  width: 100%; border: none; background: transparent; cursor: pointer;
+  font: inherit; font-weight: 600; color: var(--ink); text-align: left;
+}
+.sd-gt .sd-gt-t { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 10px; }
+.sd-gt svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--ink-3); transition: transform .24s var(--ease); }
+.sd-gt:hover svg { color: var(--ink); }
+.sd-grp.open .sd-gt svg { transform: rotate(180deg); }
+.sd-sub { display: none; padding: 2px 0 6px; }
+.sd-grp.open .sd-sub { display: block; }
+.sd-sub a {
+  display: flex; align-items: center; position: relative;
+  min-height: 42px; padding: 0 12px 0 40px; border-radius: 10px;
+  font-size: 13.5px; color: var(--ink-2);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.sd-sub a::before {
+  content: ""; position: absolute; left: 23px; top: 50%; margin-top: -2.5px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--acc, var(--ink-3)); opacity: .75;
+}
+.sd-sub a:hover { background: var(--surface-2); color: var(--ink); }
+.sd-sub a.on { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+.sd-grp.has-on > .sd-gt { color: var(--brand); }
+@media (prefers-reduced-motion: reduce) { .sd, .sd-mask, .sd-gt svg { transition: none; } }
+
+/* ---------- 路径面包屑（结构由 main.js 统一生成） ----------
+   老板定的规矩：字保持小，但每段热区靠 padding 撑开、相邻段留白，
+   手指点得准、又不显大。分隔符用 ::before 画，天然不可点。 */
+.crumbs ol { display: flex; align-items: center; list-style: none; margin: 0 0 0 -9px; padding: 0; }
+.crumbs li { display: flex; align-items: center; white-space: nowrap; }
+.crumbs ol a {
+  display: inline-flex; align-items: center;
+  min-height: 40px; padding: 0 9px; border-radius: 9px;
+  font-size: 12.5px; color: var(--ink-2);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.crumbs ol a:hover { background: var(--brand-soft); color: var(--brand); }
+.crumbs li + li::before { content: "›"; margin: 0 1px; color: var(--ink-3); opacity: .6; }
+.crumbs [aria-current="page"] {
+  display: inline-block; padding: 11px 9px; font-size: 12.5px;
+  color: var(--ink-3); font-weight: 600;
+  max-width: 56vw; overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 620px) {
+  .crumbs ol {
+    flex-wrap: nowrap; overflow-x: auto;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    /* 右缘渐隐提示还能横滚 */
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+    padding-right: 26px;
+  }
+  .crumbs ol::-webkit-scrollbar { display: none; }
+  .crumbs [aria-current="page"] { max-width: none; overflow: visible; }
+}
+
+/* ---------- viewport-fit=cover 的横向安全区补偿 ----------
+   刘海屏横屏时 inset 可达 47–59px，比 .container 的 padding 大，
+   不补偿的话品牌/正文左缘会被刘海遮住、AI 坞被屏幕圆角吃掉。
+   env() 在非刘海设备恒为 0，max() 取原值，无副作用。
+   （基础规则必须写在下面 ≤620 覆盖之前，否则会压掉移动端 18px 内边距） */
+.container {
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+.ai-dock { right: max(22px, env(safe-area-inset-right, 0px)); }
+@media (max-width: 620px) {
+  .ai-dock { right: max(14px, env(safe-area-inset-right, 0px)); }
+}
+
+/* ---------- 移动端页头：≤900 导航入抽屉，≤620 定型一行 ---------- */
+@media (max-width: 900px) {
+  .site-header .nav { display: none; }
+  /* .nav 藏起后页头失去唯一的 margin-left:auto，搜索框要自己顶到右侧
+     （否则 621–900px 的 iPad 竖屏页头全部左堆） */
+  .site-header .search-form { margin-left: auto; }
+}
+@media (max-width: 620px) {
+  .header-inner { flex-wrap: nowrap; gap: 10px; padding: 8px 0; }
+  .site-header .search-form { display: none; }
+  .brand-sub { display: none; }
+  .m-search { display: inline-flex; margin-left: auto; }
+  .container {
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+  }
+  /* 真题列表行：窄屏别把「2025 新高考Ⅰ卷」挤成竖排——标题整行保住，徽章换行，meta 自占一行 */
+  .t1-row { flex-wrap: wrap; row-gap: 4px; padding: 14px 16px; }
+  .t1-row b { white-space: nowrap; }
+  .t1-meta { margin-left: 0; flex-basis: 100%; white-space: normal; }
+}
+
+/* ---------- iOS 聚焦自动放大修复 ----------
+   触屏设备上输入框字号必须 ≥16px，否则 iOS Safari 聚焦时整页放大且不自动缩回
+   ——这就是"AI 面板要捏合缩小才能看全"的病根。桌面（精确指针）不受影响。 */
+@media (pointer: coarse) {
+  .search-form input, .hero-search input, #search-input,
+  .ai-input, .sd-search input { font-size: 16px; }
+}
+
+/* ---------- 宽内容防线（横向溢出会撑宽 layout viewport，
+   把所有 position:fixed 的部件顶出手机屏幕） ---------- */
+/* 题干/解析正文里直书的展示公式此前没有任何滚动防线 */
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: 6px 2px; }
+/* 英语生词弹层：贴近右缘时由 JS 加 .flip 翻到左侧展开 */
+.gw-pop { max-width: min(300px, calc(100vw - 40px)); }
+.gw .gw-pop.flip { left: auto; right: 0; }
+
+@media print {
+  .sd, .sd-mask, .sd-btn, .m-search { display: none !important; }
 }
